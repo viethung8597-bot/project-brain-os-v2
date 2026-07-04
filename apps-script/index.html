@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Brain OS - Google Web App</title>
+  <style>
+    body{font-family:Arial,sans-serif;background:#0b1020;color:#f4f7fb;margin:0;padding:28px;line-height:1.6}
+    .wrap{max-width:980px;margin:0 auto}.card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:18px;padding:22px;margin:18px 0}
+    input,textarea,select{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:#111936;color:#fff;margin:6px 0 14px}textarea{min-height:90px}
+    button{background:#76e4f7;color:#06111f;border:0;border-radius:999px;padding:13px 18px;font-weight:700;cursor:pointer}button.secondary{background:#a78bfa;color:#fff}pre{white-space:pre-wrap;background:#06111f;padding:16px;border-radius:14px;overflow:auto}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Project Brain OS - Google Web App</h1>
+  <p>Nhập dự án mới. Apps Script sẽ lưu vào Google Sheet, tạo thư mục Drive, tạo hàng đợi Agent và gọi Gemini/Claude qua trigger.</p>
+  <div class="card">
+    <div class="grid">
+      <label>Tên dự án<input id="projectName" value="AI Project Brain OS"></label>
+      <label>Trạng thái<select id="projectStage"><option>Idea</option><option selected>Planning</option><option>Building</option><option>Launching</option></select></label>
+    </div>
+    <label>Ý tưởng<textarea id="projectIdea">Xây dựng hệ thống Agent dùng Google Sheets, Docs, Drive, Apps Script, Gemini API và Claude API để điều hành mọi dự án mới.</textarea></label>
+    <label>Mục tiêu 30 ngày<textarea id="goal30">Có hệ thống tự động thật: nhập dự án, tạo task Agent, chạy AI, lưu output vào Docs/Drive, cập nhật dashboard.</textarea></label>
+    <label>Khách hàng/người dùng<textarea id="targetUser">Chủ dự án cá nhân, người làm automation, startup nhỏ.</textarea></label>
+    <div class="grid"><label>Ngân sách<input id="budget" value="Ưu tiên miễn phí/thấp chi phí"></label><label>Deadline<input id="deadline" value="7 ngày MVP"></label></div>
+    <label>Nguồn lực<textarea id="resources">Google Workspace, Apps Script, Gemini 2.5 Flash API, Claude API, file HTML hiện có.</textarea></label>
+    <label>Ràng buộc/rủi ro<textarea id="constraints">Không dùng n8n. Ưu tiên công cụ Google. Cần route tác vụ nhẹ sang Gemini và phức tạp sang Claude.</textarea></label>
+    <label>Đầu ra mong muốn<textarea id="desiredOutput">Google Sheet dashboard, Drive folder, Google Docs output, Agent queue, automation blueprint, SOP, checklist.</textarea></label>
+    <button onclick="submit()">Gửi dự án vào hệ thống thật</button>
+  </div>
+  <div class="card"><h2>Kết quả</h2><pre id="result">Chưa gửi.</pre></div>
+</div>
+<script>
+function val(id){return document.getElementById(id).value.trim()}
+function payload(){return {projectName:val('projectName'),projectStage:val('projectStage'),projectIdea:val('projectIdea'),goal30:val('goal30'),targetUser:val('targetUser'),budget:val('budget'),deadline:val('deadline'),resources:val('resources'),constraints:val('constraints'),desiredOutput:val('desiredOutput')}}
+function submit(){
+  document.getElementById('result').textContent='Đang gửi...';
+  google.script.run.withSuccessHandler(res=>{document.getElementById('result').textContent=JSON.stringify(res,null,2)})
+    .withFailureHandler(err=>{document.getElementById('result').textContent='Lỗi: '+err.message})
+    .submitProject(payload());
+}
+</script>
+</body>
+</html>
