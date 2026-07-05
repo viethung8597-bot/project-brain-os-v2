@@ -1,47 +1,899 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Brain OS - Google Web App</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Brain OS - Hệ Thống Agent Hành Động Cho Mọi Dự Án</title>
   <style>
-    body{font-family:Arial,sans-serif;background:#0b1020;color:#f4f7fb;margin:0;padding:28px;line-height:1.6}
-    .wrap{max-width:980px;margin:0 auto}.card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:18px;padding:22px;margin:18px 0}
-    input,textarea,select{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:#111936;color:#fff;margin:6px 0 14px}textarea{min-height:90px}
-    button{background:#76e4f7;color:#06111f;border:0;border-radius:999px;padding:13px 18px;font-weight:700;cursor:pointer}button.secondary{background:#a78bfa;color:#fff}pre{white-space:pre-wrap;background:#06111f;padding:16px;border-radius:14px;overflow:auto}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+    :root {
+      --bg: #0b1020;
+      --panel: rgba(255, 255, 255, 0.075);
+      --panel-2: rgba(255, 255, 255, 0.12);
+      --text: #f4f7fb;
+      --muted: #b7c3d7;
+      --brand: #76e4f7;
+      --brand-2: #a78bfa;
+      --gold: #f8d36a;
+      --green: #82f2b3;
+      --red: #ff8c8c;
+      --line: rgba(255, 255, 255, 0.15);
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(118, 228, 247, 0.23), transparent 28%),
+        radial-gradient(circle at 90% 0%, rgba(167, 139, 250, 0.22), transparent 30%),
+        radial-gradient(circle at 50% 100%, rgba(130, 242, 179, 0.10), transparent 35%),
+        var(--bg);
+      line-height: 1.65;
+    }
+    a { color: var(--brand); text-decoration: none; }
+    .page { width: min(1180px, calc(100% - 36px)); margin: 0 auto; }
+    header.hero {
+      padding: 72px 0 42px;
+      position: relative;
+    }
+    .badge {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 999px;
+      color: var(--muted);
+      backdrop-filter: blur(16px);
+      margin-bottom: 22px;
+    }
+    .badge span {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--brand), var(--green));
+      box-shadow: 0 0 20px var(--brand);
+    }
+    h1 {
+      font-size: clamp(42px, 7vw, 78px);
+      letter-spacing: -0.06em;
+      line-height: 0.96;
+      margin: 0 0 20px;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #ffffff, var(--brand), var(--brand-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+    .hero p.lead {
+      font-size: clamp(18px, 2vw, 23px);
+      color: var(--muted);
+      max-width: 780px;
+      margin: 0 0 28px;
+    }
+    .hero-card, .card, .section, .nav, .agent, .phase, .template-box, .checklist, .brain-map {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.095), rgba(255,255,255,0.045));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      border-radius: var(--radius);
+    }
+    .hero-card { padding: 26px; }
+    .hero-card h3 { margin-top: 0; color: var(--gold); }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+    .pill {
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      margin: 12px auto 34px;
+      padding: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .nav a {
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: var(--text);
+      font-size: 14px;
+      background: rgba(255,255,255,0.05);
+    }
+    .nav a:hover { background: rgba(118,228,247,0.16); }
+    section { margin: 28px 0; }
+    .section { padding: 34px; }
+    h2 {
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+      margin: 0 0 16px;
+    }
+    h3 { font-size: 22px; margin: 0 0 12px; }
+    h4 { margin: 0 0 10px; color: var(--brand); }
+    p, li { color: var(--muted); }
+    strong { color: #fff; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .card { padding: 22px; box-shadow: none; }
+    .card.highlight { border-color: rgba(118, 228, 247, 0.45); background: rgba(118, 228, 247, 0.08); }
+    .number {
+      display: inline-grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      color: #09111f;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+    .brain-map {
+      position: relative;
+      padding: 30px;
+      overflow: hidden;
+      min-height: 520px;
+    }
+    .core {
+      position: absolute;
+      left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 220px; height: 220px; border-radius: 50%;
+      display: grid; place-items: center; text-align: center; padding: 20px;
+      background: radial-gradient(circle, rgba(118,228,247,0.33), rgba(167,139,250,0.18));
+      border: 1px solid rgba(118,228,247,0.55);
+      box-shadow: 0 0 80px rgba(118,228,247,0.16);
+      z-index: 2;
+    }
+    .orbit {
+      position: absolute;
+      width: 190px;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.075);
+      border: 1px solid var(--line);
+    }
+    .o1 { left: 5%; top: 8%; }
+    .o2 { right: 5%; top: 8%; }
+    .o3 { right: 2%; top: 45%; }
+    .o4 { right: 16%; bottom: 6%; }
+    .o5 { left: 16%; bottom: 6%; }
+    .o6 { left: 2%; top: 45%; }
+    .line-bg {
+      position: absolute; inset: 55px;
+      border: 1px dashed rgba(255,255,255,0.18);
+      border-radius: 50%;
+    }
+    .agent {
+      padding: 20px;
+      box-shadow: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .agent:before {
+      content: "";
+      position: absolute; inset: 0 0 auto 0; height: 4px;
+      background: linear-gradient(90deg, var(--brand), var(--brand-2));
+    }
+    .agent .role { color: var(--gold); font-weight: 700; }
+    .agent ul { padding-left: 20px; margin-bottom: 0; }
+    .flow {
+      display: grid;
+      gap: 14px;
+      counter-reset: step;
+    }
+    .phase {
+      padding: 20px;
+      box-shadow: none;
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    .phase:before {
+      counter-increment: step;
+      content: counter(step);
+      width: 54px; height: 54px; border-radius: 18px;
+      background: rgba(248,211,106,0.15);
+      border: 1px solid rgba(248,211,106,0.4);
+      display: grid; place-items: center;
+      color: var(--gold); font-size: 24px; font-weight: 900;
+    }
+    .template-box {
+      padding: 0;
+      overflow: hidden;
+      box-shadow: none;
+      background: #10182c;
+    }
+    .template-title {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+      color: var(--gold);
+      font-weight: 800;
+    }
+    pre {
+      margin: 0;
+      padding: 20px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #d9e7ff;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .checklist { padding: 22px; box-shadow: none; }
+    .checklist label {
+      display: flex;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      color: var(--muted);
+    }
+    .checklist label:last-child { border-bottom: none; }
+    input[type="checkbox"] { width: 18px; height: 18px; accent-color: #76e4f7; }
+    table {
+      width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 18px;
+      border: 1px solid var(--line); margin-top: 16px;
+    }
+    th, td { padding: 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { text-align: left; color: #fff; background: rgba(255,255,255,0.09); }
+    td { color: var(--muted); }
+    tr:last-child td { border-bottom: none; }
+    .risk { border-left: 4px solid var(--red); }
+    .success { border-left: 4px solid var(--green); }
+    .quote {
+      font-size: 22px;
+      color: #fff;
+      padding: 26px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(248,211,106,0.35);
+      background: rgba(248,211,106,0.08);
+      margin-top: 18px;
+    }
+    .footer { padding: 46px 0 70px; color: var(--muted); text-align: center; }
+    .btn-print {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 60;
+      border: 0;
+      padding: 13px 16px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      color: #07111f;
+      font-weight: 900;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+    }
+
+    .action-panel {
+      border: 1px solid rgba(118, 228, 247, 0.35);
+      background: linear-gradient(180deg, rgba(118,228,247,0.12), rgba(255,255,255,0.06));
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-top: 18px;
+    }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { color: #fff; font-weight: 800; font-size: 14px; }
+    input[type="text"], input[type="number"], input[type="date"], select, textarea {
+      width: 100%; border: 1px solid var(--line); border-radius: 16px; padding: 13px 14px;
+      background: rgba(7, 17, 31, 0.55); color: var(--text); outline: none;
+      font: inherit;
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    input::placeholder, textarea::placeholder { color: rgba(183,195,215,0.65); }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+    .action-btn {
+      border: 0; border-radius: 999px; padding: 12px 16px; font-weight: 900; cursor: pointer;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #07111f;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+    }
+    .action-btn.secondary { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid var(--line); }
+    .action-btn.warn { background: linear-gradient(135deg, var(--gold), #ffb86b); color: #07111f; }
+    .mini-dashboard { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
+    .metric { padding: 18px; border-radius: 18px; background: rgba(255,255,255,0.08); border: 1px solid var(--line); }
+    .metric b { display: block; font-size: 30px; color: #fff; line-height: 1; }
+    .metric span { color: var(--muted); font-size: 13px; }
+    .score-bar { height: 14px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,0.12); border: 1px solid var(--line); margin-top: 10px; }
+    .score-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--red), var(--gold), var(--green)); transition: width .35s ease; }
+    .kanban { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
+    .kanban-col { background: rgba(255,255,255,0.06); border: 1px solid var(--line); border-radius: 18px; padding: 14px; min-height: 160px; }
+    .kanban-col h3 { margin-top: 0; font-size: 16px; }
+    .task-card { background: rgba(255,255,255,0.09); border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin: 10px 0; color: var(--muted); font-size: 14px; }
+    .task-card strong { color: #fff; }
+    .output-box { white-space: pre-wrap; background: rgba(0,0,0,0.28); border: 1px solid var(--line); border-radius: 18px; padding: 18px; color: #eaf2ff; max-height: 620px; overflow: auto; }
+    .copy-chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; color: var(--muted); background: rgba(255,255,255,0.07); margin: 4px 6px 4px 0; }
+    .status-ready { color: var(--green); font-weight: 900; }
+    .status-warn { color: var(--gold); font-weight: 900; }
+    .status-risk { color: var(--red); font-weight: 900; }
+    .runtime-note { border-left: 4px solid var(--brand); padding: 14px 16px; background: rgba(118,228,247,0.08); border-radius: 14px; color: var(--muted); }
+
+    @media (max-width: 920px) {
+      .hero-grid, .grid-2, .grid-3, .grid-4, .form-grid, .mini-dashboard, .kanban { grid-template-columns: 1fr; }
+      .brain-map { min-height: auto; display: grid; gap: 14px; }
+      .core, .orbit, .line-bg { position: static; transform: none; width: auto; height: auto; border-radius: 18px; }
+      .line-bg { display: none; }
+      .phase { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: #fff; color: #111; }
+      .section, .card, .agent, .phase, .hero-card, .brain-map, .template-box, .checklist, .nav { box-shadow: none; background: #fff; color: #111; border-color: #ddd; }
+      p, li, td, .pill, .badge { color: #333; }
+      .nav, .btn-print { display: none; }
+      .gradient-text { color: #111; background: none; }
+      pre { color: #111; background: #f6f6f6; }
+    }
   </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Project Brain OS - Google Web App</h1>
-  <p>Nhập dự án mới. Apps Script sẽ lưu vào Google Sheet, tạo thư mục Drive, tạo hàng đợi Agent và gọi Gemini/Claude qua trigger.</p>
-  <div class="card">
-    <div class="grid">
-      <label>Tên dự án<input id="projectName" value="AI Project Brain OS"></label>
-      <label>Trạng thái<select id="projectStage"><option>Idea</option><option selected>Planning</option><option>Building</option><option>Launching</option></select></label>
+  <button class="btn-print" onclick="window.print()">In / Lưu PDF</button>
+  <header class="hero page">
+    <div class="badge"><span></span> Action System: hệ thống Agent có thể vận hành thật cho mọi dự án</div>
+    <div class="hero-grid">
+      <div>
+        <h1><span class="gradient-text">Project Brain OS</span><br/>Hệ thống Agent hành động cho mọi dự án mới</h1>
+        <p class="lead">Một hệ điều hành dự án có thể dùng ngay: nhập ý tưởng → tự tạo Project Brief → chia việc cho Agent → sinh checklist → xuất prompt copy-paste → theo dõi tiến độ → đóng gói SOP cho dự án tiếp theo.</p>
+        <div class="pill-row">
+          <div class="pill">Form nhập dự án</div>
+          <div class="pill">Agent tự chia việc</div>
+          <div class="pill">Prompt copy-paste</div>
+          <div class="pill">Checklist hành động</div>
+          <div class="pill">Dashboard tiến độ</div>
+        </div>
+      </div>
+      <aside class="hero-card">
+        <h3>Triết lý cốt lõi</h3>
+        <p><strong>Đây không còn là bản vẽ.</strong> Đây là một bảng điều khiển có thể nhập dữ liệu, tạo nhiệm vụ, tạo prompt, tạo checklist và xuất kế hoạch hành động ngay trong trình duyệt.</p>
+        <p><strong>Mỗi dự án mới chỉ cần copy quy trình này.</strong> Bạn thay dữ liệu đầu vào, hệ thống sẽ sinh ra bộ tài liệu vận hành tương ứng.</p>
+      </aside>
     </div>
-    <label>Ý tưởng<textarea id="projectIdea">Xây dựng hệ thống Agent dùng Google Sheets, Docs, Drive, Apps Script, Gemini API và Claude API để điều hành mọi dự án mới.</textarea></label>
-    <label>Mục tiêu 30 ngày<textarea id="goal30">Có hệ thống tự động thật: nhập dự án, tạo task Agent, chạy AI, lưu output vào Docs/Drive, cập nhật dashboard.</textarea></label>
-    <label>Khách hàng/người dùng<textarea id="targetUser">Chủ dự án cá nhân, người làm automation, startup nhỏ.</textarea></label>
-    <div class="grid"><label>Ngân sách<input id="budget" value="Ưu tiên miễn phí/thấp chi phí"></label><label>Deadline<input id="deadline" value="7 ngày MVP"></label></div>
-    <label>Nguồn lực<textarea id="resources">Google Workspace, Apps Script, Gemini 2.5 Flash API, Claude API, file HTML hiện có.</textarea></label>
-    <label>Ràng buộc/rủi ro<textarea id="constraints">Không dùng n8n. Ưu tiên công cụ Google. Cần route tác vụ nhẹ sang Gemini và phức tạp sang Claude.</textarea></label>
-    <label>Đầu ra mong muốn<textarea id="desiredOutput">Google Sheet dashboard, Drive folder, Google Docs output, Agent queue, automation blueprint, SOP, checklist.</textarea></label>
-    <button onclick="submit()">Gửi dự án vào hệ thống thật</button>
-  </div>
-  <div class="card"><h2>Kết quả</h2><pre id="result">Chưa gửi.</pre></div>
-</div>
+  </header>
+
+  <nav class="nav page">
+    <a href="#action-system">Hệ thống hành động</a>
+    <a href="#project-intake">Nhập dự án</a>
+    <a href="#live-dashboard">Dashboard</a>
+    <a href="#agent-output">Output</a>
+    <a href="#overview">Tổng quan</a>
+    <a href="#brain">Bộ não Agent</a>
+    <a href="#process">Quy trình</a>
+    <a href="#agents">Danh sách Agent</a>
+    <a href="#google-automation">Google Automation thật</a>
+    <a href="#automation">Automation</a>
+    <a href="#templates">Prompt mẫu</a>
+    <a href="#checklist">Checklist</a>
+  </nav>
+
+  <main class="page">
+
+    <section id="action-system" class="section">
+      <h2>0. Hệ thống hành động thật: từ ý tưởng → nhiệm vụ → output</h2>
+      <p>Phần này biến file HTML thành một công cụ vận hành tại chỗ. Bạn nhập dự án mới vào form, bấm tạo hệ thống, sau đó file sẽ tự sinh Project Brief, điểm khả thi, nhiệm vụ cho Agent, kế hoạch 7 ngày, checklist, prompt tổng và cấu trúc dữ liệu để copy sang Google Sheets/n8n/Make.</p>
+      <div class="grid-3">
+        <div class="card highlight"><h3>Đầu vào chuẩn</h3><p>Form bắt buộc làm rõ tên dự án, mục tiêu, khách hàng, ngân sách, deadline, nguồn lực, rủi ro và đầu ra mong muốn.</p></div>
+        <div class="card success"><h3>Máy chia việc</h3><p>Hệ thống tự phân nhiệm vụ cho Master, Strategy, Research, Product, Ops, Automation, Finance, Marketing, Sales, Risk, QA và Documentation Agent.</p></div>
+        <div class="card"><h3>Đầu ra dùng ngay</h3><p>Nhận prompt copy-paste, bảng task, checklist, Project Health Score, kế hoạch 7 ngày và blueprint automation.</p></div>
+      </div>
+      <div class="runtime-note"><strong>Cách dùng thực tế:</strong> mở file này trong trình duyệt → nhập một dự án mới → bấm “Tạo hệ thống vận hành” → copy phần Output sang ChatGPT, Google Docs, Google Sheets, n8n hoặc Make. Bản hiện tại có thể chạy cục bộ; nếu cấu hình Google Apps Script Web App URL ở phần dưới, file sẽ gửi dữ liệu thật vào Google Sheets/Docs/Drive và kích hoạt Agent Gemini/Claude.</div>
+    </section>
+
+    <section id="project-intake" class="section">
+      <h2>1. Project Intake — nhập dự án để hệ thống hành động</h2>
+      <p>Đây là form chuẩn cho mọi dự án mới. Bạn có thể dùng ngay cho dự án hiện tại hoặc copy cấu trúc này sang Google Form/Sheet.</p>
+      <div class="action-panel">
+        <div class="form-grid">
+          <div class="field"><label>Tên dự án</label><input id="projectName" type="text" value="AI Project Brain OS" placeholder="Ví dụ: AI Project Brain OS" /></div>
+          <div class="field"><label>Trạng thái</label><select id="projectStage"><option>Idea</option><option selected>Planning</option><option>Building</option><option>Testing</option><option>Launching</option><option>Operating</option><option>Scaling</option></select></div>
+          <div class="field full"><label>Mô tả ý tưởng</label><textarea id="projectIdea">Xây dựng một hệ thống Agent có thể áp dụng cho mọi dự án mới: nhập ý tưởng, tự phân tích, chia việc, tạo checklist, tạo prompt, tạo workflow automation và xuất tài liệu vận hành có thể copy-paste cho dự án tiếp theo.</textarea></div>
+          <div class="field"><label>Mục tiêu 30 ngày</label><textarea id="goal30">Có một file HTML vận hành được, bộ prompt Agent, checklist, dashboard task, cấu trúc Google Sheet và blueprint workflow n8n/Make/Zapier.</textarea></div>
+          <div class="field"><label>Khách hàng/người dùng</label><textarea id="targetUser">Chủ dự án cá nhân, người làm automation, startup nhỏ, người muốn biến ý tưởng thành quy trình triển khai thực tế nhanh.</textarea></div>
+          <div class="field"><label>Ngân sách dự kiến</label><input id="budget" type="text" value="0–5 triệu VND cho MVP; ưu tiên dùng công cụ miễn phí trước" /></div>
+          <div class="field"><label>Deadline MVP</label><input id="deadline" type="text" value="7 ngày" /></div>
+          <div class="field"><label>Nguồn lực hiện có</label><textarea id="resources">ChatGPT, file HTML hiện tại, Google Sheets, Google Docs, khả năng dùng n8n/Make/Zapier, các ý tưởng workflow trước đây.</textarea></div>
+          <div class="field"><label>Ràng buộc/rủi ro</label><textarea id="constraints">Không được chỉ là lý thuyết. Phải có output copy-paste. Ưu tiên đơn giản, dễ dùng, dễ nhân bản. Chưa dùng API thật ở bản MVP.</textarea></div>
+          <div class="field full"><label>Đầu ra mong muốn</label><textarea id="desiredOutput">Project Brief, danh sách Agent, nhiệm vụ từng Agent, kế hoạch 7 ngày, checklist triển khai, prompt tổng, prompt Agent, cấu trúc bảng dữ liệu, blueprint automation, SOP dùng lại.</textarea></div>
+        </div>
+        <div class="btn-row">
+          <button class="action-btn" onclick="generateProjectOS()">Tạo hệ thống vận hành</button>
+          <button class="action-btn secondary" onclick="copyOutput('mainOutput')">Copy Output</button>
+          <button class="action-btn secondary" onclick="downloadOutput()">Tải Markdown</button>
+          <button class="action-btn warn" onclick="resetSample()">Nạp lại dự án mẫu</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="live-dashboard" class="section">
+      <h2>2. Live Dashboard — điểm sức khỏe dự án</h2>
+      <p>Bảng này giúp bạn quyết định dự án đang ở mức nào: chỉ là ý tưởng, có thể MVP, hay sẵn sàng triển khai.</p>
+      <div class="mini-dashboard">
+        <div class="metric"><b id="scoreValue">82</b><span>Project Health Score</span><div class="score-bar"><div id="scoreFill" class="score-fill" style="width:82%"></div></div></div>
+        <div class="metric"><b id="agentCount">12</b><span>Agent được kích hoạt</span></div>
+        <div class="metric"><b id="taskCount">24</b><span>Task mẫu được tạo</span></div>
+        <div class="metric"><b id="statusLabel">MVP</b><span>Khuyến nghị triển khai</span></div>
+      </div>
+      <div class="kanban" id="kanbanBoard"></div>
+    </section>
+
+    <section id="agent-output" class="section">
+      <h2>3. Output vận hành — copy dùng ngay</h2>
+      <p>Sau khi bấm tạo hệ thống, toàn bộ kế hoạch sẽ xuất hiện ở đây. Bạn có thể copy vào ChatGPT để chạy đội Agent, hoặc dán vào Google Docs làm tài liệu dự án.</p>
+      <div class="btn-row">
+        <span class="copy-chip">Project Brief</span>
+        <span class="copy-chip">Agent Tasks</span>
+        <span class="copy-chip">7-Day Action Plan</span>
+        <span class="copy-chip">Automation Blueprint</span>
+        <span class="copy-chip">Master Prompt</span>
+      </div>
+      <div id="mainOutput" class="output-box">Bấm “Tạo hệ thống vận hành” để sinh output.</div>
+    </section>
+
+    <section id="copy-paste-system" class="section">
+      <h2>4. Bộ copy-paste cho toàn bộ dự án tiếp theo</h2>
+      <div class="grid-2">
+        <div class="template-box">
+          <div class="template-title">Master Prompt chạy toàn hệ thống</div>
+          <pre id="masterPromptBox">Hãy bấm “Tạo hệ thống vận hành” để hệ thống tự điền prompt theo dữ liệu dự án.</pre>
+        </div>
+        <div class="template-box">
+          <div class="template-title">Cấu trúc Google Sheet / Airtable</div>
+          <pre>Sheet 1: Project_Intake
+Project_ID | Date | Project_Name | Idea | Goal_30 | Target_User | Budget | Deadline | Resources | Constraints | Desired_Output | Stage | Health_Score
+
+Sheet 2: Agent_Tasks
+Task_ID | Project_ID | Agent | Mission | Input | Output | Priority | Deadline | Status | Quality_Check
+
+Sheet 3: Action_Plan
+Action_ID | Project_ID | Day | Action | Owner | Output | Status | Notes
+
+Sheet 4: Risk_Register
+Risk_ID | Project_ID | Risk | Impact | Probability | Prevention | Response | Owner | Status
+
+Sheet 5: Final_Output
+Project_ID | Brief_Link | SOP_Link | Checklist_Link | Prompt_Link | Dashboard_Link | Version | Updated_At</pre>
+        </div>
+      </div>
+    </section>
+
+
+
+    <section id="google-automation" class="section">
+      <h2>4A. Google Automation thật — Sheets + Docs + Drive + Apps Script + Gemini/Claude</h2>
+      <p>Phần này biến file HTML thành bảng điều khiển có thể gửi dự án vào backend Google Apps Script thật. Backend sẽ lưu dữ liệu vào Google Sheet, tạo thư mục Drive, tạo Google Docs, chia hàng đợi Agent và gọi Gemini/Claude theo độ phức tạp.</p>
+      <div class="grid-3">
+        <div class="card success"><h3>Gemini 2.5 Flash</h3><p>Dùng cho tác vụ nhẹ: checklist, SOP nháp, marketing content, sales script, finance draft, documentation.</p></div>
+        <div class="card highlight"><h3>Claude API</h3><p>Dùng cho tác vụ phức tạp: Master Orchestrator, Strategy, Product, Automation, Risk và QA.</p></div>
+        <div class="card"><h3>Google Workspace</h3><p>Google Sheet làm database, Apps Script làm backend, Drive lưu folder, Docs lưu output, trigger chạy hàng đợi Agent.</p></div>
+      </div>
+      <div class="action-panel">
+        <div class="form-grid">
+          <div class="field full"><label>Google Apps Script Web App URL</label><input id="googleWebAppUrl" type="text" placeholder="Dán Web App URL sau khi Deploy Apps Script" /></div>
+          <div class="field"><label>Chế độ chạy</label><select id="googleRunMode"><option selected>queue</option><option>fast</option><option>full</option></select></div>
+          <div class="field"><label>Model routing</label><select id="modelRouting"><option selected>Gemini nhẹ + Claude phức tạp</option><option>Gemini only</option><option>Claude only</option></select></div>
+        </div>
+        <div class="btn-row">
+          <button class="action-btn" onclick="submitToGoogleAutomation()">Gửi vào Google Automation thật</button>
+          <button class="action-btn secondary" onclick="saveGoogleUrl()">Lưu Web App URL</button>
+          <button class="action-btn secondary" onclick="copyOutput('googleAutomationBlueprint')">Copy Apps Script Blueprint</button>
+        </div>
+        <div id="googleAutomationStatus" class="runtime-note"><strong>Trạng thái:</strong> Chưa kết nối Google Apps Script.</div>
+        <div id="googleAutomationBlueprint" class="output-box">Google Flow thật:
+HTML/Web App → Apps Script doPost/submitProject → Google Sheet Project_Intake → Agent_Tasks queue → runAgentQueue trigger → Gemini/Claude API → Google Docs/Drive → Final_Output → Telegram/Gmail optional.
+
+File triển khai đi kèm:
+- project_brain_os_apps_script_Code.gs
+- project_brain_os_apps_script_index.html
+- project_brain_os_appsscript.json
+- PROJECT_BRAIN_OS_GOOGLE_DEPLOY_GUIDE.md</div>
+      </div>
+    </section>
+
+    <section id="overview" class="section">
+      <h2>5. Hệ tư duy nền móng: 9 câu hỏi trước khi triển khai</h2>
+      <p>Trước khi xây một dự án, hãy xem nó như xây một tòa nhà. Không có bản vẽ thì càng làm càng rối. Không có móng thì càng phát triển càng sập. Không có đội thi công thì người sáng lập phải tự ôm hết mọi việc.</p>
+      <div class="grid-3">
+        <div class="card"><div class="number">1</div><h3>Vấn đề</h3><p>Ai đang đau? Đau ở đâu? Họ đã thử giải quyết bằng cách nào? Vì sao chưa hài lòng?</p></div>
+        <div class="card"><div class="number">2</div><h3>Khách hàng</h3><p>Ai là người trả tiền? Ai là người dùng? Ai là người ảnh hưởng đến quyết định mua?</p></div>
+        <div class="card"><div class="number">3</div><h3>Giá trị</h3><p>Dự án giúp khách hàng tiết kiệm tiền, kiếm thêm tiền, giảm rủi ro, tiết kiệm thời gian hay tăng trải nghiệm?</p></div>
+        <div class="card"><div class="number">4</div><h3>Sản phẩm</h3><p>Bản đơn giản nhất có thể bán/thử nghiệm trong 7–30 ngày là gì?</p></div>
+        <div class="card"><div class="number">5</div><h3>Dòng tiền</h3><p>Tiền vào từ đâu? Giá bán bao nhiêu? Biên lợi nhuận? Chu kỳ thu tiền?</p></div>
+        <div class="card"><div class="number">6</div><h3>Nguồn lực</h3><p>Cần người, vốn, dữ liệu, công cụ, đối tác, giấy tờ và thời gian như thế nào?</p></div>
+        <div class="card"><div class="number">7</div><h3>Quy trình</h3><p>Các bước lặp đi lặp lại nào có thể chuẩn hóa thành SOP hoặc automation?</p></div>
+        <div class="card"><div class="number">8</div><h3>Rủi ro</h3><p>Điều gì có thể làm dự án thất bại? Có cách kiểm chứng sớm trước khi đổ tiền lớn không?</p></div>
+        <div class="card"><div class="number">9</div><h3>Mở rộng</h3><p>Nếu có 10 lần, 100 lần khách hàng thì hệ thống có vận hành nổi không?</p></div>
+      </div>
+      <div class="quote">Công thức tư duy: <strong>Dự án tốt = Vấn đề thật + Giải pháp đơn giản + Dòng tiền rõ + Quy trình lặp lại + Đội Agent hỗ trợ + Dữ liệu đo lường.</strong></div>
+    </section>
+
+    <section id="brain" class="section">
+      <h2>6. Kiến trúc “Bộ não dự án”</h2>
+      <p>Bộ não trung tâm không làm thay tất cả. Nó chia việc, kiểm tra kết quả, gom dữ liệu, ra quyết định và cập nhật chiến lược. Mỗi Agent giống một phòng ban chuyên môn.</p>
+      <div class="brain-map">
+        <div class="line-bg"></div>
+        <div class="core"><div><h3>Project Brain<br/>Command Center</h3><p>Điều phối, ưu tiên, kiểm định, ra quyết định</p></div></div>
+        <div class="orbit o1"><h4>Vision Agent</h4><p>Xác định mục tiêu, tầm nhìn, tiêu chuẩn thành công.</p></div>
+        <div class="orbit o2"><h4>Market Agent</h4><p>Nghiên cứu thị trường, khách hàng, đối thủ, xu hướng.</p></div>
+        <div class="orbit o3"><h4>Product Agent</h4><p>Thiết kế sản phẩm, MVP, trải nghiệm, tính năng.</p></div>
+        <div class="orbit o4"><h4>Ops Agent</h4><p>Lập quy trình, SOP, vận hành, nhân sự, nhà cung cấp.</p></div>
+        <div class="orbit o5"><h4>Finance Agent</h4><p>Tính vốn, giá bán, lợi nhuận, dòng tiền, rủi ro.</p></div>
+        <div class="orbit o6"><h4>Growth Agent</h4><p>Marketing, bán hàng, kênh phân phối, chăm sóc khách.</p></div>
+      </div>
+    </section>
+
+    <section id="process" class="section">
+      <h2>7. Quy trình 12 bước triển khai dự án mới</h2>
+      <p>Quy trình này có thể dùng cho nhiều kiểu dự án: workflow mua hàng hộ Shopee, startup quán bánh bao, hệ sinh thái thân cây chuối, app tiết kiệm, dịch vụ trung gian thương mại, hoặc bất kỳ dự án automation nào.</p>
+      <div class="flow">
+        <div class="phase"><div><h3>Nhập đề bài dự án</h3><p>Ghi rõ: tên dự án, mục tiêu, ngân sách, thời hạn, địa điểm, khách hàng, nguồn lực hiện có, giới hạn không được vượt.</p></div></div>
+        <div class="phase"><div><h3>Chẩn đoán cơ hội</h3><p>Market Agent kiểm tra nhu cầu thật, chân dung khách hàng, đối thủ, mức giá thị trường, điểm khác biệt.</p></div></div>
+        <div class="phase"><div><h3>Chấm điểm khả thi</h3><p>Finance Agent + Risk Agent đánh giá vốn, dòng tiền, pháp lý, rủi ro vận hành, khả năng thu hồi vốn.</p></div></div>
+        <div class="phase"><div><h3>Thiết kế mô hình kinh doanh</h3><p>Chọn cách kiếm tiền: bán sản phẩm, phí dịch vụ, hoa hồng, chênh lệch giá, đăng ký định kỳ, gói nâng cấp.</p></div></div>
+        <div class="phase"><div><h3>Thiết kế MVP</h3><p>Product Agent cắt bỏ mọi thứ chưa cần thiết, giữ lại phiên bản nhỏ nhất có thể kiểm chứng bằng khách hàng thật.</p></div></div>
+        <div class="phase"><div><h3>Lập bản đồ quy trình</h3><p>Ops Agent chia thành các bước: đầu vào → xử lý → kiểm tra → bàn giao → chăm sóc → đo lường.</p></div></div>
+        <div class="phase"><div><h3>Phân vai Agent</h3><p>Command Center giao nhiệm vụ cho từng Agent, đặt deadline, đầu ra mong muốn và tiêu chuẩn kiểm tra.</p></div></div>
+        <div class="phase"><div><h3>Xây hệ thống dữ liệu</h3><p>Tạo form nhập liệu, Google Sheets/Airtable/Notion làm database, chuẩn hóa trường thông tin và trạng thái xử lý.</p></div></div>
+        <div class="phase"><div><h3>Thiết kế automation</h3><p>Tự động hóa việc nhận yêu cầu, phân loại, tạo báo cáo, gửi thông báo, nhắc việc, tạo hợp đồng, theo dõi tiến độ.</p></div></div>
+        <div class="phase"><div><h3>Thử nghiệm nhỏ</h3><p>Chạy với 5–20 khách hàng hoặc 1 nhóm nhỏ để đo thời gian xử lý, lỗi, chi phí, phản hồi và tỷ lệ chốt.</p></div></div>
+        <div class="phase"><div><h3>Tối ưu vòng lặp</h3><p>Giữ lại cái hiệu quả, cắt bỏ cái dư thừa, viết SOP, nâng cấp prompt, thêm kiểm soát chất lượng.</p></div></div>
+        <div class="phase"><div><h3>Mở rộng có kiểm soát</h3><p>Khi quy trình ổn định, tăng khách hàng, thuê người, thêm Agent, thêm kênh bán, thêm dashboard quản trị.</p></div></div>
+      </div>
+    </section>
+
+    <section id="agents" class="section">
+      <h2>8. Hệ thống Agent hoàn chỉnh</h2>
+      <p>Mỗi Agent cần có 5 thành phần: vai trò, dữ liệu đầu vào, nhiệm vụ, đầu ra, tiêu chuẩn đánh giá. Không giao việc mơ hồ cho Agent.</p>
+      <div class="grid-3">
+        <div class="agent"><h3>01. Command Center Agent</h3><p class="role">Bộ não điều phối</p><ul><li>Nhận đề bài tổng</li><li>Chia việc cho Agent</li><li>Ưu tiên nhiệm vụ</li><li>Kiểm tra xung đột</li><li>Ra quyết định cuối</li></ul></div>
+        <div class="agent"><h3>02. Vision Agent</h3><p class="role">Chiến lược & mục tiêu</p><ul><li>Xác định tầm nhìn</li><li>OKR/KPI</li><li>Tiêu chuẩn thành công</li><li>Giới hạn dự án</li></ul></div>
+        <div class="agent"><h3>03. Market Research Agent</h3><p class="role">Thị trường</p><ul><li>Khách hàng mục tiêu</li><li>Đối thủ</li><li>Xu hướng</li><li>Insight mua hàng</li></ul></div>
+        <div class="agent"><h3>04. Customer Persona Agent</h3><p class="role">Chân dung khách hàng</p><ul><li>Nỗi đau</li><li>Khả năng chi trả</li><li>Niềm tin cản trở</li><li>Lý do mua</li></ul></div>
+        <div class="agent"><h3>05. Product Architect Agent</h3><p class="role">Thiết kế sản phẩm</p><ul><li>MVP</li><li>Tính năng</li><li>Gói dịch vụ</li><li>Trải nghiệm người dùng</li></ul></div>
+        <div class="agent"><h3>06. Operation Agent</h3><p class="role">Vận hành</p><ul><li>SOP</li><li>Luồng xử lý</li><li>Checklist</li><li>Nhân sự</li><li>Nhà cung cấp</li></ul></div>
+        <div class="agent"><h3>07. Finance Agent</h3><p class="role">Tài chính</p><ul><li>Chi phí cố định</li><li>Chi phí biến đổi</li><li>Giá bán</li><li>Lãi gộp</li><li>Điểm hòa vốn</li></ul></div>
+        <div class="agent"><h3>08. Risk & Legal Agent</h3><p class="role">Rủi ro & pháp lý</p><ul><li>Rủi ro tiền</li><li>Rủi ro pháp lý</li><li>Rủi ro vận hành</li><li>Kịch bản xấu</li></ul></div>
+        <div class="agent"><h3>09. Supplier Agent</h3><p class="role">Nguồn cung</p><ul><li>Tìm nhà cung cấp</li><li>So sánh giá</li><li>Đàm phán</li><li>Đánh giá uy tín</li></ul></div>
+        <div class="agent"><h3>10. Sales Agent</h3><p class="role">Bán hàng</p><ul><li>Kịch bản tư vấn</li><li>Chốt deal</li><li>Follow-up</li><li>Xử lý từ chối</li></ul></div>
+        <div class="agent"><h3>11. Marketing Agent</h3><p class="role">Tăng trưởng</p><ul><li>Content</li><li>Ads</li><li>Kênh phân phối</li><li>Lead magnet</li></ul></div>
+        <div class="agent"><h3>12. Automation Agent</h3><p class="role">Tự động hóa</p><ul><li>Google Form</li><li>Google Sheets</li><li>Zapier/Make/n8n</li><li>Zalo/Gmail/Telegram</li></ul></div>
+        <div class="agent"><h3>13. Data Analyst Agent</h3><p class="role">Dữ liệu</p><ul><li>Dashboard</li><li>KPI</li><li>Báo cáo</li><li>Phân tích lỗi</li></ul></div>
+        <div class="agent"><h3>14. Quality Control Agent</h3><p class="role">Kiểm định</p><ul><li>Kiểm tra đầu ra</li><li>Phát hiện sai sót</li><li>Chấm điểm chất lượng</li><li>Đề xuất sửa</li></ul></div>
+        <div class="agent"><h3>15. Learning Agent</h3><p class="role">Học hỏi & nâng cấp</p><ul><li>Ghi bài học</li><li>Cập nhật SOP</li><li>Cải tiến prompt</li><li>Tối ưu quy trình</li></ul></div>
+      </div>
+    </section>
+
+    <section id="automation" class="section">
+      <h2>5. Mô hình automation nên xây</h2>
+      <p>Với phong cách dự án của bạn, hệ thống nên bắt đầu bằng MVP đơn giản: Form nhập dữ liệu → Database → AI phân tích → Agent phân việc → Dashboard → nhắc việc/tạo tài liệu/tư vấn bước tiếp theo.</p>
+      <div class="grid-2">
+        <div class="card highlight"><h3>Phiên bản MVP dễ làm</h3><ul><li>Google Form: nhập ý tưởng dự án, ngân sách, deadline, mục tiêu.</li><li>Google Sheets: lưu dữ liệu, trạng thái, điểm khả thi.</li><li>Zapier/Make/n8n: kích hoạt khi có form mới.</li><li>AI Agent: phân tích, chia việc, tạo kế hoạch 7 ngày/30 ngày.</li><li>Gmail/Zalo/Telegram: gửi báo cáo, nhắc việc, follow-up.</li></ul></div>
+        <div class="card"><h3>Phiên bản nâng cấp</h3><ul><li>Dashboard quản trị nhiều dự án.</li><li>Agent tự tìm nhà cung cấp tiềm năng.</li><li>Agent tạo bảng so sánh báo giá.</li><li>Agent sinh hợp đồng/biên bản/đề xuất.</li><li>Agent theo dõi KPI và cảnh báo rủi ro.</li></ul></div>
+      </div>
+      <table>
+        <thead><tr><th>Tầng hệ thống</th><th>Mục đích</th><th>Công cụ gợi ý</th></tr></thead>
+        <tbody>
+          <tr><td>Input Layer</td><td>Thu thập yêu cầu, thông tin khách hàng, ý tưởng dự án.</td><td>Google Form, Typeform, Telegram Bot, Zalo Form</td></tr>
+          <tr><td>Database Layer</td><td>Lưu dữ liệu có cấu trúc để Agent đọc và xử lý.</td><td>Google Sheets, Airtable, Notion, Supabase</td></tr>
+          <tr><td>Agent Layer</td><td>Phân tích, ra quyết định, tạo nội dung, lập kế hoạch.</td><td>ChatGPT, Claude, Gemini, Custom GPT, API</td></tr>
+          <tr><td>Workflow Layer</td><td>Kết nối các bước tự động.</td><td>Zapier, Make, n8n</td></tr>
+          <tr><td>Communication Layer</td><td>Gửi thông báo, chăm sóc khách, đàm phán, follow-up.</td><td>Gmail, Zalo OA, Telegram, WhatsApp, CRM</td></tr>
+          <tr><td>Dashboard Layer</td><td>Theo dõi tiến độ, KPI, rủi ro, dòng tiền.</td><td>Looker Studio, Sheets Dashboard, Notion, Retool</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>6. Công thức chấm điểm ý tưởng dự án</h2>
+      <p>Trước khi triển khai lớn, hãy chấm điểm dự án theo thang 100. Dự án dưới 60 điểm chỉ nên nghiên cứu thêm. Từ 60–75 điểm có thể làm MVP nhỏ. Trên 75 điểm có thể ưu tiên triển khai.</p>
+      <div class="grid-4">
+        <div class="card success"><h3>Nhu cầu thật</h3><p>0–20 điểm: vấn đề có cấp bách không, khách có sẵn trả tiền không?</p></div>
+        <div class="card success"><h3>Dòng tiền</h3><p>0–20 điểm: biên lợi nhuận, giá bán, tần suất mua lại, tốc độ thu tiền.</p></div>
+        <div class="card success"><h3>Khả năng làm</h3><p>0–20 điểm: vốn, kỹ năng, thời gian, nhà cung cấp, công nghệ.</p></div>
+        <div class="card success"><h3>Lợi thế</h3><p>0–15 điểm: khác biệt, tốc độ, dữ liệu, quan hệ, thương hiệu, quy trình.</p></div>
+        <div class="card risk"><h3>Rủi ro</h3><p>0–10 điểm: pháp lý, tồn kho, hoàn tiền, lỗi vận hành, phụ thuộc nền tảng.</p></div>
+        <div class="card success"><h3>Khả năng mở rộng</h3><p>0–10 điểm: có tự động hóa được không, có nhân bản được không?</p></div>
+        <div class="card success"><h3>Tốc độ kiểm chứng</h3><p>0–5 điểm: có thể test trong 7–30 ngày không?</p></div>
+        <div class="card highlight"><h3>Tổng điểm</h3><p><strong>≥ 75:</strong> ưu tiên. <strong>60–74:</strong> MVP nhỏ. <strong>&lt; 60:</strong> chưa nên đổ vốn lớn.</p></div>
+      </div>
+    </section>
+
+    <section id="templates" class="section">
+      <h2>7. Prompt mẫu cho Command Center Agent</h2>
+      <p>Bạn có thể dùng prompt này trong ChatGPT, Zapier, Make hoặc n8n để biến một ý tưởng thô thành kế hoạch triển khai có phân vai Agent.</p>
+      <div class="template-box">
+        <div class="template-title">Prompt tổng điều phối dự án</div>
+        <pre>Bạn là Project Brain Command Center, bộ não điều phối một hệ thống AI Agent để triển khai dự án mới.
+
+Dữ liệu đầu vào:
+- Tên dự án: [điền tên]
+- Mục tiêu chính: [điền mục tiêu]
+- Khách hàng mục tiêu: [điền khách hàng]
+- Ngân sách: [điền ngân sách]
+- Thời hạn: [điền deadline]
+- Nguồn lực hiện có: [người/vốn/công cụ/dữ liệu/đối tác]
+- Giới hạn không được vượt: [pháp lý, chi phí, thời gian, rủi ro]
+
+Nhiệm vụ:
+1. Phân tích vấn đề và cơ hội thị trường.
+2. Chấm điểm khả thi theo thang 100.
+3. Thiết kế MVP nhỏ nhất có thể thử nghiệm trong 7–30 ngày.
+4. Chia nhiệm vụ cho các Agent: Vision, Market, Product, Finance, Ops, Supplier, Sales, Marketing, Automation, Risk, Data, QC.
+5. Tạo kế hoạch hành động 7 ngày đầu, 30 ngày đầu và 90 ngày đầu.
+6. Liệt kê dữ liệu cần thu thập bằng Google Form/Sheets.
+7. Đề xuất workflow automation phù hợp.
+8. Tạo checklist kiểm tra trước khi triển khai.
+9. Nêu 10 rủi ro lớn nhất và cách giảm thiểu.
+10. Kết luận: nên triển khai, thử MVP nhỏ hay tạm dừng.
+
+Yêu cầu đầu ra:
+- Trình bày dạng bảng rõ ràng.
+- Ưu tiên hành động đơn giản, ít vốn, kiểm chứng nhanh.
+- Không đưa lời khuyên chung chung.
+- Mỗi nhiệm vụ phải có người/Agent phụ trách, đầu ra cần giao, deadline và tiêu chuẩn hoàn thành.</pre>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>8. Mẫu bảng dữ liệu quản lý mọi dự án</h2>
+      <p>Đây là cấu trúc Google Sheets/Airtable/Notion nên có để hệ thống Agent vận hành nhất quán.</p>
+      <table>
+        <thead><tr><th>Nhóm cột</th><th>Các trường nên có</th><th>Mục đích</th></tr></thead>
+        <tbody>
+          <tr><td>Thông tin dự án</td><td>ID, tên dự án, mô tả, người phụ trách, ngày tạo, trạng thái</td><td>Quản lý danh mục dự án</td></tr>
+          <tr><td>Mục tiêu</td><td>Mục tiêu 7 ngày, 30 ngày, 90 ngày, KPI chính</td><td>Giữ dự án đi đúng hướng</td></tr>
+          <tr><td>Khách hàng</td><td>Phân khúc, nỗi đau, khả năng chi trả, kênh tiếp cận</td><td>Đảm bảo làm đúng nhu cầu</td></tr>
+          <tr><td>Tài chính</td><td>Ngân sách, chi phí dự kiến, giá bán, lợi nhuận, điểm hòa vốn</td><td>Kiểm soát tiền</td></tr>
+          <tr><td>Agent</td><td>Agent phụ trách, nhiệm vụ, deadline, đầu ra, điểm chất lượng</td><td>Phân việc rõ ràng</td></tr>
+          <tr><td>Rủi ro</td><td>Rủi ro, mức độ, khả năng xảy ra, phương án xử lý</td><td>Giảm sai lầm lớn</td></tr>
+          <tr><td>Automation</td><td>Trigger, action, công cụ, lỗi, trạng thái workflow</td><td>Tự động hóa có kiểm soát</td></tr>
+          <tr><td>Bài học</td><td>Điều đã học, lỗi gặp phải, quyết định mới, SOP cập nhật</td><td>Tích lũy kinh nghiệm</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="checklist" class="section">
+      <h2>9. Checklist trước khi bắt đầu dự án</h2>
+      <div class="grid-2">
+        <div class="checklist">
+          <h3>Checklist chiến lược</h3>
+          <label><input type="checkbox"> Tôi đã xác định rõ khách hàng trả tiền.</label>
+          <label><input type="checkbox"> Tôi biết vấn đề nào đang làm khách hàng đau nhất.</label>
+          <label><input type="checkbox"> Tôi có MVP có thể thử trong 7–30 ngày.</label>
+          <label><input type="checkbox"> Tôi biết cách kiếm tiền và thu tiền.</label>
+          <label><input type="checkbox"> Tôi đã chấm điểm khả thi dự án.</label>
+          <label><input type="checkbox"> Tôi đã xác định rủi ro lớn nhất.</label>
+        </div>
+        <div class="checklist">
+          <h3>Checklist vận hành</h3>
+          <label><input type="checkbox"> Tôi có form/database để thu thập dữ liệu.</label>
+          <label><input type="checkbox"> Tôi đã chia nhiệm vụ cho từng Agent.</label>
+          <label><input type="checkbox"> Tôi có checklist kiểm tra chất lượng đầu ra.</label>
+          <label><input type="checkbox"> Tôi có dashboard theo dõi KPI.</label>
+          <label><input type="checkbox"> Tôi có workflow nhắc việc/follow-up.</label>
+          <label><input type="checkbox"> Tôi có quy trình ghi bài học và cập nhật SOP.</label>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>10. Ý tưởng nâng cấp sáng tạo</h2>
+      <div class="grid-3">
+        <div class="card"><h3>Agent Hội đồng phản biện</h3><p>Mỗi quyết định lớn phải được 3 Agent phản biện: tài chính, rủi ro, khách hàng. Nếu không qua được phản biện thì chưa triển khai lớn.</p></div>
+        <div class="card"><h3>Project Health Score</h3><p>Mỗi dự án có điểm sức khỏe theo tuần: tiến độ, dòng tiền, khách hàng, lỗi vận hành, rủi ro, tinh thần đội nhóm.</p></div>
+        <div class="card"><h3>Kho SOP tự học</h3><p>Mỗi lần làm xong việc, Learning Agent tự ghi lại quy trình tốt nhất để lần sau làm nhanh hơn.</p></div>
+        <div class="card"><h3>Agent săn nhà cung cấp</h3><p>Đặc biệt phù hợp với mô hình trung gian thương mại, mua hàng hộ, săn deal Shopee hoặc đàm phán đối tác.</p></div>
+        <div class="card"><h3>Agent đàm phán</h3><p>Tạo kịch bản Zalo/Gmail/Telegram để hỏi giá, so sánh báo giá, thương lượng số lượng, chiết khấu, thời gian giao.</p></div>
+        <div class="card"><h3>Thư viện dự án mẫu</h3><p>Mỗi dự án cũ trở thành template: form, sheet, prompt, SOP, báo cáo, rủi ro, kịch bản bán hàng.</p></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>11. Kế hoạch xây dựng hệ thống trong 30 ngày</h2>
+      <table>
+        <thead><tr><th>Giai đoạn</th><th>Việc cần làm</th><th>Kết quả cần có</th></tr></thead>
+        <tbody>
+          <tr><td>Ngày 1–3</td><td>Thiết kế form nhập dự án, bảng dữ liệu, tiêu chuẩn chấm điểm.</td><td>Google Form + Google Sheets bản đầu.</td></tr>
+          <tr><td>Ngày 4–7</td><td>Tạo prompt Command Center, prompt từng Agent, checklist đầu ra.</td><td>Bộ prompt vận hành được.</td></tr>
+          <tr><td>Ngày 8–14</td><td>Kết nối automation: form mới → AI phân tích → ghi kết quả → gửi báo cáo.</td><td>Workflow MVP chạy được.</td></tr>
+          <tr><td>Ngày 15–21</td><td>Thử với 3–5 dự án mẫu: mua hàng hộ, quán bánh bao, app tiết kiệm, trung gian thương mại.</td><td>Báo cáo lỗi và điểm cần tối ưu.</td></tr>
+          <tr><td>Ngày 22–30</td><td>Tối ưu dashboard, thêm Agent phản biện, chuẩn hóa SOP, tạo template tái sử dụng.</td><td>Project Brain OS phiên bản 1.0.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>12. Nguyên tắc vàng</h2>
+      <div class="grid-2">
+        <div class="card highlight"><h3>Làm nhỏ trước, đúng trước, rồi mới lớn</h3><p>Đừng xây hệ thống quá phức tạp ngay. Hãy để một workflow đơn giản chạy ổn, có dữ liệu thật, có khách hàng thật, rồi mới nâng cấp.</p></div>
+        <div class="card highlight"><h3>Agent không thay thế tư duy chủ dự án</h3><p>Agent giúp phân tích, gợi ý, tạo nội dung và kiểm tra. Người chủ vẫn phải quyết định dựa trên mục tiêu, tiền, đạo đức, pháp lý và thực tế thị trường.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer page">
+    <p>Project Brain OS — Action System có form, Agent, checklist, prompt, dashboard và quy trình copy-paste cho mọi dự án mới.</p>
+  </footer>
+
 <script>
-function val(id){return document.getElementById(id).value.trim()}
-function payload(){return {projectName:val('projectName'),projectStage:val('projectStage'),projectIdea:val('projectIdea'),goal30:val('goal30'),targetUser:val('targetUser'),budget:val('budget'),deadline:val('deadline'),resources:val('resources'),constraints:val('constraints'),desiredOutput:val('desiredOutput')}}
-function submit(){
-  document.getElementById('result').textContent='Đang gửi...';
-  google.script.run.withSuccessHandler(res=>{document.getElementById('result').textContent=JSON.stringify(res,null,2)})
-    .withFailureHandler(err=>{document.getElementById('result').textContent='Lỗi: '+err.message})
-    .submitProject(payload());
+const agents = [
+  ['Master Orchestrator Agent','Điều phối toàn bộ dự án, chia module, ưu tiên việc, gom output cuối.','Project Map + quyết định bước tiếp theo'],
+  ['Strategy Agent','Xác định vấn đề thật, khách hàng, định vị, mô hình kiếm tiền, lợi thế cạnh tranh.','Strategy Brief + MVP direction'],
+  ['Research Agent','Tìm dữ liệu thị trường, đối thủ, công cụ, case study, giả định cần kiểm chứng.','Research Notes + bảng so sánh'],
+  ['Product Agent','Thiết kế sản phẩm/dịch vụ, tính năng cốt lõi, MVP và roadmap nâng cấp.','MVP Spec + roadmap'],
+  ['Operations Agent','Thiết kế quy trình vận hành, SOP, checklist, bàn giao, xử lý lỗi.','SOP + vận hành hằng ngày'],
+  ['Automation Agent','Thiết kế trigger, action, luồng dữ liệu, công cụ, tích hợp Agent.','Workflow blueprint'],
+  ['Finance Agent','Tính chi phí, doanh thu, lợi nhuận, điểm hòa vốn, kịch bản xấu/tốt.','Finance model sơ bộ'],
+  ['Marketing Agent','Xác định kênh, thông điệp, content, offer, cách tìm khách đầu tiên.','Marketing plan 7/30 ngày'],
+  ['Sales Agent','Tạo script tư vấn, báo giá, xử lý từ chối, follow-up, chốt đơn.','Sales scripts'],
+  ['Legal & Risk Agent','Kiểm tra rủi ro pháp lý, tài chính, vận hành, dữ liệu, đối tác.','Risk register'],
+  ['QA Agent','Kiểm định tính thực tế, điểm thiếu, mâu thuẫn, chất lượng output.','QA review'],
+  ['Documentation Agent','Đóng gói thành tài liệu, checklist, prompt, template tái sử dụng.','Final docs + template']
+];
+
+function val(id){ return (document.getElementById(id)?.value || '').trim(); }
+function scoreProject(data){
+  let score = 45;
+  if(data.name.length > 3) score += 5;
+  if(data.idea.length > 80) score += 8;
+  if(data.goal.length > 30) score += 8;
+  if(data.user.length > 30) score += 8;
+  if(data.budget.length > 3) score += 5;
+  if(data.deadline.length > 2) score += 4;
+  if(data.resources.length > 30) score += 6;
+  if(data.constraints.length > 20) score += 5;
+  if(data.output.length > 30) score += 6;
+  return Math.min(100, score);
 }
+function statusFromScore(score){
+  if(score >= 80) return ['Sẵn sàng MVP','status-ready','Có thể triển khai MVP ngay, nhưng vẫn cần QA và đo dữ liệu thật.'];
+  if(score >= 65) return ['MVP nhỏ','status-warn','Nên thử nghiệm nhỏ 7 ngày trước khi đầu tư lớn.'];
+  return ['Cần làm rõ','status-risk','Cần bổ sung khách hàng, mục tiêu, nguồn lực hoặc đầu ra trước.'];
+}
+function generateTasks(data){
+  return agents.map((a, i) => ({
+    id: 'T' + String(i+1).padStart(2,'0'),
+    agent: a[0],
+    mission: a[1],
+    output: a[2],
+    priority: i < 4 ? 'P1' : (i < 9 ? 'P2' : 'P3'),
+    deadline: i < 4 ? 'Ngày 1-2' : (i < 9 ? 'Ngày 3-5' : 'Ngày 6-7'),
+    status: i < 4 ? 'Đang phân tích' : 'Backlog'
+  }));
+}
+function generateKanban(tasks){
+  const buckets = {
+    'Backlog': tasks.filter(t => t.status === 'Backlog').slice(0,4),
+    'Đang phân tích': tasks.filter(t => t.status === 'Đang phân tích'),
+    'Chờ QA': tasks.filter(t => ['QA Agent','Legal & Risk Agent'].includes(t.agent)),
+    'Output cuối': tasks.filter(t => ['Documentation Agent','Master Orchestrator Agent'].includes(t.agent))
+  };
+  let html = '';
+  Object.entries(buckets).forEach(([name, list]) => {
+    html += `<div class="kanban-col"><h3>${name}</h3>`;
+    list.forEach(t => html += `<div class="task-card"><strong>${t.agent}</strong><br>${t.output}<br><small>${t.priority} · ${t.deadline}</small></div>`);
+    html += '</div>';
+  });
+  document.getElementById('kanbanBoard').innerHTML = html;
+}
+function buildOutput(data, score, status, tasks){
+  const taskTable = tasks.map(t => `| ${t.id} | ${t.agent} | ${t.mission} | ${t.output} | ${t.priority} | ${t.deadline} |`).join('\n');
+  const agentPrompts = agents.map(a => `### ${a[0]}\nBạn là ${a[0]}. Dự án: ${data.name}. Mục tiêu 30 ngày: ${data.goal}. Hãy thực hiện nhiệm vụ: ${a[1]} Đầu ra bắt buộc: ${a[2]}. Không trả lời chung chung, hãy tạo bảng hành động cụ thể.`).join('\n\n');
+  return `# PROJECT BRAIN OS - BẢN VẬN HÀNH THẬT\n\n## I. Project Brief\n- Tên dự án: ${data.name}\n- Trạng thái: ${data.stage}\n- Mô tả: ${data.idea}\n- Mục tiêu 30 ngày: ${data.goal}\n- Người dùng/khách hàng: ${data.user}\n- Ngân sách: ${data.budget}\n- Deadline MVP: ${data.deadline}\n- Nguồn lực hiện có: ${data.resources}\n- Ràng buộc/rủi ro: ${data.constraints}\n- Đầu ra mong muốn: ${data.output}\n\n## II. Project Health Score\n- Điểm: ${score}/100\n- Kết luận: ${status[0]}\n- Khuyến nghị: ${status[2]}\n\n## III. Sơ đồ vận hành thực tế\nProject Intake Form → Project Brief → Master Orchestrator → Chia việc cho 12 Agent → Gom output → QA Review → Documentation Agent → SOP/Checklist/Prompt/Automation Blueprint → Dashboard tiến độ → Lặp lại cho dự án tiếp theo.\n\n## IV. Bảng nhiệm vụ Agent\n| ID | Agent | Nhiệm vụ | Output | Ưu tiên | Deadline |\n|---|---|---|---|---|---|\n${taskTable}\n\n## V. Kế hoạch hành động 7 ngày\n### Ngày 1\n- Chốt Project Brief cuối cùng.\n- Tạo Google Sheet với 5 bảng: Project_Intake, Agent_Tasks, Action_Plan, Risk_Register, Final_Output.\n- Chạy Master Orchestrator để chia việc.\n\n### Ngày 2\n- Strategy Agent + Research Agent làm rõ khách hàng, vấn đề, use case đầu tiên.\n- Product Agent chốt MVP nhỏ nhất.\n\n### Ngày 3\n- Operations Agent viết SOP bản 0.1.\n- Automation Agent vẽ workflow Form → Sheet → AI → Docs/Telegram.\n\n### Ngày 4\n- Finance Agent tính chi phí MVP.\n- Risk Agent lập Risk Register.\n\n### Ngày 5\n- Marketing Agent tạo thông điệp và content giới thiệu.\n- Sales Agent tạo script tư vấn nếu dùng để bán dịch vụ tư vấn/automation.\n\n### Ngày 6\n- QA Agent kiểm tra toàn bộ output, phát hiện điểm thiếu, yêu cầu chỉnh.\n\n### Ngày 7\n- Documentation Agent đóng gói thành template dùng lại: HTML, prompt, SOP, checklist, Google Sheet structure.\n\n## VI. Checklist triển khai\n- [ ] Có Project Brief rõ ràng.\n- [ ] Có người dùng/khách hàng mục tiêu.\n- [ ] Có MVP nhỏ nhất.\n- [ ] Có bảng Agent_Tasks.\n- [ ] Có bảng Action_Plan.\n- [ ] Có Risk_Register.\n- [ ] Có prompt tổng và prompt từng Agent.\n- [ ] Có workflow automation MVP.\n- [ ] Có QA review trước khi triển khai lớn.\n- [ ] Có SOP/template dùng lại cho dự án tiếp theo.\n\n## VII. Blueprint Automation MVP\nTrigger: Có dòng mới trong Google Sheet Project_Intake.\n\n1. Đọc dữ liệu dự án mới.\n2. Gửi dữ liệu cho Master Orchestrator Prompt.\n3. Tạo Project Brief và Agent_Tasks.\n4. Gửi từng nhiệm vụ cho Agent tương ứng.\n5. Gom output vào Google Docs hoặc Notion.\n6. QA Agent kiểm tra.\n7. Nếu chưa đạt → quay lại Agent cần sửa.\n8. Nếu đạt → tạo Final_Output, cập nhật Dashboard, gửi Telegram/Gmail.\n\n## VIII. Master Prompt copy-paste\nHãy vận hành như PROJECT BRAIN OS.\n\nDự án: ${data.name}\nMô tả: ${data.idea}\nMục tiêu 30 ngày: ${data.goal}\nKhách hàng/người dùng: ${data.user}\nNgân sách: ${data.budget}\nDeadline MVP: ${data.deadline}\nNguồn lực: ${data.resources}\nRàng buộc/rủi ro: ${data.constraints}\nĐầu ra mong muốn: ${data.output}\n\nHãy chia việc cho 12 Agent: Master Orchestrator, Strategy, Research, Product, Operations, Automation, Finance, Marketing, Sales, Legal/Risk, QA, Documentation.\nYêu cầu đầu ra: Project Brief, nhiệm vụ Agent, kế hoạch 7 ngày, kế hoạch 30 ngày, checklist, workflow automation, bảng rủi ro, prompt từng Agent và bước hành động ngay bây giờ.\nKhông trả lời lý thuyết. Hãy tạo output có thể copy-paste để triển khai thật.\n\n## IX. Prompt từng Agent\n${agentPrompts}\n\n## X. Bước hành động ngay bây giờ\n1. Copy phần Master Prompt ở trên vào ChatGPT để chạy lần đầu.\n2. Tạo Google Sheet theo cấu trúc trong file HTML này.\n3. Dán bảng Agent Tasks vào Sheet.\n4. Chọn 3 output cần làm trước: Project Brief, SOP MVP, Automation Blueprint.\n5. Sau khi có output, chạy QA Agent để kiểm tra trước khi mở rộng.`;
+}
+function generateProjectOS(){
+  const data = {
+    name: val('projectName'), stage: val('projectStage'), idea: val('projectIdea'), goal: val('goal30'),
+    user: val('targetUser'), budget: val('budget'), deadline: val('deadline'), resources: val('resources'),
+    constraints: val('constraints'), output: val('desiredOutput')
+  };
+  const score = scoreProject(data);
+  const status = statusFromScore(score);
+  const tasks = generateTasks(data);
+  const output = buildOutput(data, score, status, tasks);
+  document.getElementById('mainOutput').textContent = output;
+  document.getElementById('masterPromptBox').textContent = output.split('## IX. Prompt từng Agent')[0].split('## VIII. Master Prompt copy-paste')[1]?.trim() || 'Không tạo được prompt.';
+  document.getElementById('scoreValue').textContent = score;
+  document.getElementById('scoreFill').style.width = score + '%';
+  document.getElementById('agentCount').textContent = agents.length;
+  document.getElementById('taskCount').textContent = tasks.length * 2;
+  document.getElementById('statusLabel').textContent = status[0];
+  generateKanban(tasks);
+}
+function copyOutput(id){
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => alert('Đã copy output vào clipboard.'));
+}
+function downloadOutput(){
+  const text = document.getElementById('mainOutput').textContent;
+  const blob = new Blob([text], {type:'text/markdown;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'project-brain-os-output.md';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function resetSample(){
+  document.getElementById('projectName').value = 'AI Project Brain OS';
+  document.getElementById('projectStage').value = 'Planning';
+  document.getElementById('projectIdea').value = 'Xây dựng một hệ thống Agent có thể áp dụng cho mọi dự án mới: nhập ý tưởng, tự phân tích, chia việc, tạo checklist, tạo prompt, tạo workflow automation và xuất tài liệu vận hành có thể copy-paste cho dự án tiếp theo.';
+  document.getElementById('goal30').value = 'Có một file HTML vận hành được, bộ prompt Agent, checklist, dashboard task, cấu trúc Google Sheet và blueprint workflow n8n/Make/Zapier.';
+  document.getElementById('targetUser').value = 'Chủ dự án cá nhân, người làm automation, startup nhỏ, người muốn biến ý tưởng thành quy trình triển khai thực tế nhanh.';
+  document.getElementById('budget').value = '0–5 triệu VND cho MVP; ưu tiên dùng công cụ miễn phí trước';
+  document.getElementById('deadline').value = '7 ngày';
+  document.getElementById('resources').value = 'ChatGPT, file HTML hiện tại, Google Sheets, Google Docs, khả năng dùng n8n/Make/Zapier, các ý tưởng workflow trước đây.';
+  document.getElementById('constraints').value = 'Không được chỉ là lý thuyết. Phải có output copy-paste. Ưu tiên đơn giản, dễ dùng, dễ nhân bản. Chưa dùng API thật ở bản MVP.';
+  document.getElementById('desiredOutput').value = 'Project Brief, danh sách Agent, nhiệm vụ từng Agent, kế hoạch 7 ngày, checklist triển khai, prompt tổng, prompt Agent, cấu trúc bảng dữ liệu, blueprint automation, SOP dùng lại.';
+  generateProjectOS();
+}
+
+function collectProjectPayload(){
+  return {
+    projectName: val('projectName'),
+    projectStage: val('projectStage'),
+    projectIdea: val('projectIdea'),
+    goal30: val('goal30'),
+    targetUser: val('targetUser'),
+    budget: val('budget'),
+    deadline: val('deadline'),
+    resources: val('resources'),
+    constraints: val('constraints'),
+    desiredOutput: val('desiredOutput'),
+    runMode: val('googleRunMode'),
+    modelRouting: val('modelRouting'),
+    source: 'standalone-html'
+  };
+}
+function saveGoogleUrl(){
+  const url = val('googleWebAppUrl');
+  if(!url){ alert('Hãy dán Google Apps Script Web App URL trước.'); return; }
+  localStorage.setItem('projectBrainGoogleWebAppUrl', url);
+  document.getElementById('googleAutomationStatus').innerHTML = '<strong>Trạng thái:</strong> Đã lưu Web App URL. Bây giờ có thể gửi dự án vào Google Automation thật.';
+}
+async function submitToGoogleAutomation(){
+  const url = val('googleWebAppUrl') || localStorage.getItem('projectBrainGoogleWebAppUrl') || '';
+  if(!url){ alert('Bạn cần dán Web App URL sau khi Deploy Apps Script.'); return; }
+  saveGoogleUrl();
+  const payload = collectProjectPayload();
+  const box = document.getElementById('googleAutomationStatus');
+  box.innerHTML = '<strong>Trạng thái:</strong> Đang gửi dữ liệu vào Google Apps Script...';
+  try{
+    const res = await fetch(url, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(payload), redirect:'follow' });
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); } catch(e) { data = { raw:text }; }
+    if(data.ok){
+      box.innerHTML = `<strong>Đã gửi thành công.</strong><br>Project ID: ${data.projectId}<br>Health Score: ${data.healthScore}<br>Drive Folder: <a href="${data.folderUrl}" target="_blank">Mở thư mục</a><br>Master Doc: <a href="${data.masterDocUrl}" target="_blank">Mở Google Doc</a><br>${data.nextStep || ''}`;
+    } else {
+      box.innerHTML = '<strong>Lỗi từ Apps Script:</strong><pre>' + JSON.stringify(data,null,2) + '</pre>';
+    }
+  }catch(err){
+    box.innerHTML = '<strong>Lỗi kết nối:</strong> ' + err.message + '<br>Gợi ý: kiểm tra Web App URL, quyền truy cập deployment, hoặc CORS. Nếu bị CORS, hãy mở bản HTML chạy trực tiếp trong Apps Script Web App.';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  generateProjectOS();
+  const saved = localStorage.getItem('projectBrainGoogleWebAppUrl');
+  if(saved && document.getElementById('googleWebAppUrl')) document.getElementById('googleWebAppUrl').value = saved;
+});
 </script>
+
 </body>
 </html>
