@@ -115,7 +115,7 @@
     <script type="text/babel" data-presets="react">
         const { useState, useEffect, useCallback, useRef } = React;
 
-        const APP_VERSION = "3.4.4";
+        const APP_VERSION = "3.5.9";
         const C = { bg: "#FBF1F1", bg2: "#F8E8E4", primary: "#E89A8E", pd: "#D4807A", brown: "#776B66", gold: "#F0C49B", gd: "#D4A574", white: "#F9F7F5", lav: "#E0E2EE", text: "#3D3530", tl: "#9A8E89", ov: "rgba(232,154,142,0.12)", ok: "#7BC67E", no: "#E85D5D", blue: "#5B9BD5", rg: "#C97A72" };
 
         const DISTRICTS = {
@@ -169,10 +169,10 @@
         ];
 
         const BOXES = [
-            { id: "basic", name: "Duyên Box Mini", cost: 30, color: C.lav, emoji: "📦", tagline: "Món quà nhỏ, niềm vui lớn", possible: ["🌹 Bông hoa đơn", "🕯️ Nến mini", "💌 Thiệp tay", "🍫 Socola"], highlight: "Có cơ hội nhận Son Duyên Mini!", sold: 2847, rarity: "Phổ biến" },
-            { id: "love", name: "Duyên Box Yêu Thương", cost: 80, color: C.primary, emoji: "🎁", popular: true, tagline: "Hộp quà bất ngờ cho đôi lứa", possible: ["🌹 Bó hoa nhỏ", "💄 Son dưỡng", "🕯️ Nến thơm", "🍫 Socola Bỉ"], highlight: "Có cơ hội nhận Nước Hoa Mini!", sold: 1523, rarity: "Đặc biệt", stock: 48 },
-            { id: "vip", name: "Duyên Box VIP", cost: 200, color: C.gold, emoji: "✨", tagline: "Trải nghiệm sang trọng", possible: ["🌹 Bó hoa cao cấp", "💄 Son thương hiệu", "🌸 Nước hoa 10ml"], highlight: "Có cơ hội nhận Voucher 500K!", sold: 687, rarity: "Hiếm", stock: 15 },
-            { id: "svip", name: "Duyên Box Siêu VIP", cost: 500, color: "#9B8EC4", emoji: "💎", tagline: "Chỉ dành cho người đặc biệt", possible: ["💐 Bó hoa premium", "🌸 Nước hoa 30ml", "👗 Voucher thời trang"], highlight: "Có cơ hội Đêm Khách Sạn 5⭐!", sold: 142, rarity: "Siêu hiếm", stock: 5 },
+            { id: "mini", name: "Duyên Box Mini", cost: 30, color: C.lav, emoji: "📦", tagline: "Gửi một tín hiệu nhỏ", possible: ["🌹 1 bông hoa + thiệp", "🍫 Socola mini", "☕ Cà phê/trà sữa gần nhất", "🕯️ Nến mini", "🎀 Móc khóa dễ thương"], highlight: "Server chọn sản phẩm còn hàng từ shop phù hợp/gần nhất", sold: 2847, rarity: "Mở nhanh mỗi tuần" },
+            { id: "love", name: "Duyên Box Yêu Thương", cost: 80, color: C.primary, emoji: "🎁", popular: true, tagline: "Làm người ấy vui ngay hôm nay", possible: ["💐 Bó hoa mini", "🍰 Tiramisu/bánh cup", "💄 Son dưỡng/hand cream", "🌹 Hoa + thiệp viết sẵn", "🍵 Set trà + nến thơm"], highlight: "Có lời nhắn cá nhân hóa đi kèm", sold: 1523, rarity: "Gửi tặng người thương", stock: 48 },
+            { id: "emotion", name: "Duyên Box Cảm Xúc", cost: 120, color: "#9B8EC4", emoji: "💌", tagline: "Theo tình huống cảm xúc", possible: ["🙏 Tôi muốn xin lỗi", "🥺 Tôi nhớ người ấy", "🎉 Tôi muốn tạo bất ngờ", "☕ Tôi muốn rủ đi hẹn", "🤍 Tôi muốn chăm sóc"], highlight: "Bạn chọn tâm trạng, Duyên chọn món phù hợp", sold: 812, rarity: "Khác biệt nhất", moods: ["Tôi muốn xin lỗi", "Tôi nhớ người ấy", "Tôi muốn tạo bất ngờ", "Tôi muốn rủ đi hẹn", "Tôi muốn chăm sóc người ấy"] },
+            { id: "premium", name: "Duyên Box Premium", cost: 250, color: C.gold, emoji: "✨", tagline: "Khoảnh khắc đặc biệt", possible: ["💐 Bó hoa cao cấp", "🕯️ Set nến thơm + hoa", "🎂 Bánh kem mini + thiệp", "🍽️ Voucher nhà hàng/cafe", "🌸 Nước hoa mini"], highlight: "Ưu tiên trải nghiệm đóng gói đặc biệt", sold: 267, rarity: "Ít mở hơn, giá trị cao hơn", stock: 15 },
         ];
 
         const COIN_PACKS = [
@@ -183,6 +183,9 @@
         ];
 
         const BANK = { name: "LE VIET HUNG", bank: "Vietcombank", number: "0261003491045" };
+        const PIN_NEW_RE = /^\d{6}$/;
+        const PIN_LOGIN_RE = /^(\d{4}|\d{6})$/;
+        const vietQrUrl = (bank, amount, addInfo) => `https://img.vietqr.io/image/VCB-${(bank || BANK).number}-compact2.jpg?amount=${Number(amount) || 0}&addInfo=${encodeURIComponent(addInfo || "")}&accountName=${encodeURIComponent((bank || BANK).name || "")}`;
 
         const DEAL_CATEGORIES = [
             { id: "all", name: "Tất cả", emoji: "✨" },
@@ -409,7 +412,7 @@
 
             /* ═══ FETCH: GỌI GOOGLE SHEET (thay JSONP — hoạt động trên cả mobile) ═══ */
             // Nếu tạo deployment mới thay vì cập nhật deployment cũ, thay URL /exec tại đây.
-            const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbw8dzimtpS0QEfRlc5tZ0wldHt_1bnnMuXxH6eAJdPODwOGxk2oP5Odd0UOFFDhKetw/exec";
+            const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbwnHC0AFzLKSuopdoMReWKYrqV3p18u6FAKVEzPvULr0ESVyyrRc1K0GuAN5EczdZEb/exec";
 
             const mockSheetCall = async (params) => {
                 const action = String(params.action || "");
@@ -425,6 +428,13 @@
                 };
 
                 if (action === "beginPinRegistration") {
+                    if (users[phone] && !users[phone].testPin) {
+                        const upgraded = { ...users[phone], testPin: String(params.pin || "") };
+                        saveMockUser(upgraded);
+                        const cleanUser = { ...upgraded };
+                        delete cleanUser.testPin;
+                        return { status: "ok", code: "legacy_pin_created", sessionToken: "local-login-" + phone, user: cleanUser, existingAccount: true };
+                    }
                     if (users[phone]) return { status: "error", code: "account_exists", message: "SĐT đã có tài khoản. Vui lòng đăng nhập." };
                     const pendingPins = LS.load('mockPendingPins', {});
                     pendingPins[phone] = String(params.pin || "");
@@ -468,6 +478,49 @@
                     saveMockUser(updated);
                     return { status: "ok" };
                 }
+                if (action === "getDailyBoxStatus") {
+                    const today = new Date().toDateString();
+                    const rows = LS.load('mockDailyBoxes', []).filter(x => x.phone === phone && x.dateKey === today);
+                    return { status: "ok", dateKey: today, openedCount: rows.length, nextCost: rows.length > 0 ? 5 : 0, lastBox: rows[rows.length - 1] || null };
+                }
+                if (action === "openDailyBox") {
+                    const today = new Date().toDateString();
+                    const rows = LS.load('mockDailyBoxes', []);
+                    const todayRows = rows.filter(x => x.phone === phone && x.dateKey === today);
+                    const cost = todayRows.length ? 5 : 0;
+                    const balance = Number(currentUser?.coins) || 0;
+                    if (balance < cost) return { status: "error", code: "insufficient_balance", message: "Không đủ coin để mở thêm Daily Box", balanceAfter: balance, nextCost: cost };
+                    const updated = { ...currentUser, coins: balance - cost };
+                    if (cost) saveMockUser(updated);
+                    const box = { id: "MOCK_DBD" + Date.now(), phone, dateKey: today, openIndex: todayRows.length + 1, isFree: cost === 0, coinCost: cost, balanceBefore: balance, balanceAfter: balance - cost, dailyType: "advice", title: "💡 Lời khuyên tình cảm", content: "Hôm nay hãy gửi một lời quan tâm thật nhẹ. Đôi khi sự đúng lúc quan trọng hơn món quà lớn.", suggestion: "Nếu muốn tạo bất ngờ, hãy thử Duyên Box Mini.", source: "mock" };
+                    rows.push(box); LS.save('mockDailyBoxes', rows);
+                    return { status: "ok", dailyBox: box, openedCount: box.openIndex, nextCost: 5, balanceAfter: box.balanceAfter };
+                }
+                if (action === "getDuyenBoxCatalog") return { status: "ok", boxes: BOXES };
+                if (action === "getDuyenBoxCandidates") return { status: "ok", box: BOXES.find(b => b.id === params.boxId) || BOXES[0], candidates: [] };
+                if (action === "openDuyenBox") {
+                    const b = BOXES.find(x => x.id === params.boxId) || BOXES[0];
+                    const balance = Number(currentUser?.coins) || 0;
+                    if (balance < b.cost) return { status: "error", code: "insufficient_balance", message: "Không đủ coin", balanceAfter: balance };
+                    const updated = { ...currentUser, coins: balance - b.cost };
+                    saveMockUser(updated);
+                    const order = {
+                        id: "BOX" + Date.now() + "_" + (phone || "").slice(-4),
+                        date: new Date().toLocaleDateString("vi-VN"),
+                        type: "box",
+                        requiresShipping: true,
+                        items: [{ name: b.name + ": Quà bí ẩn", qty: 1, price: b.cost * 2000, boxType: b.id, boxMood: params.mood || "", aiMessage: "Duyên đã chọn một món quà nhỏ phù hợp với khoảnh khắc này." }],
+                        status: "Đang chuẩn bị",
+                        coin: b.cost,
+                        coinReward: 0,
+                        total: b.cost * 2000,
+                        ship: params.ship || {},
+                        note: b.name + (params.mood ? " · " + params.mood : "")
+                    };
+                    const orders = LS.load('orders', []);
+                    LS.save('orders', [order, ...orders]);
+                    return { status: "ok", order, box: b, selectedProduct: { name: "Quà bí ẩn", shopName: "Mock Shop", price: b.cost * 2000 }, aiMessage: order.items[0].aiMessage, aiSource: "mock", balanceAfter: updated.coins, partnerOrderId: order.id + "_SHOP" };
+                }
                 if (action === "logTx") {
                     const amount = Math.abs(Number(params.amount) || 0);
                     const balance = Number(currentUser?.coins) || 0;
@@ -495,7 +548,7 @@
 
             const sheetCall = (params) => {
                 if (LOCAL_TEST_MODE) return mockSheetCall(params);
-                const payload = { client: "duyen-app-v3.4.4", ...params };
+                const payload = { client: "duyen-app-v3.5.9", ...params };
                 const token = LS.load('sessionToken', '');
                 const cachedUser = LS.load('user', null);
                 if (token && !payload.sessionToken) payload.sessionToken = token;
@@ -547,6 +600,7 @@
             const [pProdName, setPProdName] = useState(""); const [pProdPrice, setPProdPrice] = useState("");
             const [pProdQty, setPProdQty] = useState(""); const [pProdCat, setPProdCat] = useState("");
             const [pProdDesc, setPProdDesc] = useState(""); const [pProdImages, setPProdImages] = useState([]); const [pImageBusy, setPImageBusy] = useState(false);
+            const [pProdVariants, setPProdVariants] = useState([{ color: "", size: "", price: "", qty: "" }]);
             // Sản phẩm thật hiển thị bên khách hàng (load từ sheet)
             const [liveProducts, setLiveProducts] = useState([]);
             const [ndStep, setNdStep] = useState(0);
@@ -566,7 +620,11 @@
             const [notifications, setNotifications] = useState([]);
             const [showNotiPanel, setShowNotiPanel] = useState(false);
             const [seenNotiIds, setSeenNotiIds] = useState(LS.load('seenNotiIds', []));
+            const [dailyBox, setDailyBox] = useState(null);
+            const [dailyBoxLoading, setDailyBoxLoading] = useState(false);
             const [boxOpening, setBoxOpening] = useState(false); const [boxResult, setBoxResult] = useState(null);
+            const [selectedBox, setSelectedBox] = useState(null);
+            const [boxMood, setBoxMood] = useState("");
             const [editMode, setEditMode] = useState(false); const [cardFilter, setCardFilter] = useState("all"); const [storeFilter, setStoreFilter] = useState("all");
             const [eName, setEName] = useState(""); const [eCity, setECity] = useState(""); const [eD, setED] = useState(""); const [eW, setEW] = useState(""); const [eSt, setESt] = useState("");
             const [selectedPackage, setSelectedPackage] = useState(null); const [horoTab, setHoroTab] = useState("banMenh");
@@ -575,6 +633,47 @@
             const imageSrcCacheRef = useRef({});
             const productImageComponentRef = useRef(null);
             const show = useCallback(msg => { setToast({ msg, v: true }); setTimeout(() => setToast(t => ({ ...t, v: false })), 2200) }, []); 
+            const STORE_CATEGORIES = ["Làm đẹp", "Thời trang", "Sức khỏe", "Quà tặng", "Phụ kiện", "Nước hoa"];
+            const PARTNER_ORDER_STATUSES = ["Đang chuẩn bị", "Đang giao hàng", "Giao hàng thành công"];
+            const parseJsonList = value => {
+                if (!value) return [];
+                if (Array.isArray(value)) return value;
+                if (typeof value === "object") return [value];
+                const raw = String(value || "").trim();
+                if (!raw) return [];
+                try {
+                    const parsed = JSON.parse(raw);
+                    return Array.isArray(parsed) ? parsed : (parsed ? [parsed] : []);
+                } catch {}
+                return raw.split(/[\n,|]/).map(v => v.trim()).filter(Boolean);
+            };
+            const cleanProductVariants = list => parseJsonList(list).map(v => ({
+                color: String(v?.color || v?.mau || "").trim(),
+                size: String(v?.size || v?.kichCo || "").trim(),
+                price: Number(String(v?.price || "").replace(/\D/g, "")) || 0,
+                qty: Number(String(v?.qty || "").replace(/\D/g, "")) || 0
+            })).filter(v => v.color || v.size || v.price || v.qty);
+            const summarizeVariants = (variants, fallbackPrice = 0, fallbackQty = 0) => {
+                const clean = cleanProductVariants(variants);
+                const prices = clean.map(v => Number(v.price) || 0).filter(Boolean);
+                const colors = [...new Set(clean.map(v => v.color).filter(Boolean))];
+                const sizes = [...new Set(clean.map(v => v.size).filter(Boolean))];
+                return {
+                    variants: clean,
+                    colors,
+                    sizes,
+                    qty: clean.length ? clean.reduce((s, v) => s + (Number(v.qty) || 0), 0) : (Number(fallbackQty) || 0),
+                    priceMin: prices.length ? Math.min(...prices) : (Number(fallbackPrice) || 0),
+                    priceMax: prices.length ? Math.max(...prices) : (Number(fallbackPrice) || 0)
+                };
+            };
+            const productPriceText = p => {
+                if (p?.variant) return fmt(Number(p.variant.price) || Number(p.price) || 0);
+                const min = Number(p?.priceMin || p?.price) || 0;
+                const max = Number(p?.priceMax || p?.price || min) || min;
+                return max && max !== min ? `${fmt(min)} - ${fmt(max)}` : fmt(min);
+            };
+            const variantLabel = v => [v?.color, v?.size].filter(Boolean).join(" / ");
             const storeEmoji = cat => {
                 const s = String(cat || "").toLowerCase();
                 if (s.includes("mỹ phẩm") || s.includes("làm đẹp")) return "💄";
@@ -637,7 +736,7 @@
                 }));
                 return out;
             };
-            const MAX_PRODUCT_IMAGES = 3;
+            const MAX_PRODUCT_IMAGES = 5;
             const PRODUCT_IMAGE_TARGET_CHARS = 160000;
             const compressProductImage = file => new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -672,7 +771,9 @@
                 reader.readAsDataURL(file);
             });
             const normalizeStoreProduct = p => {
-                const price = Number(p?.price) || 0;
+                const variants = cleanProductVariants(p?.variants);
+                const variantSummary = summarizeVariants(variants, p?.price, p?.qty);
+                const price = Number(p?.price) || Number(variantSummary.priceMin) || 0;
                 const sold = Number(p?.sold) || 0;
                 const images = parseProductImages(p?.images);
                 const imageSrc = images.find(isDisplayableImage) || "";
@@ -681,8 +782,14 @@
                     id: String(p?.id || p?.productId || ""),
                     images,
                     imageSrc,
+                    variants,
+                    colors: parseJsonList(p?.colors).length ? parseJsonList(p?.colors) : variantSummary.colors,
+                    sizes: parseJsonList(p?.sizes).length ? parseJsonList(p?.sizes) : variantSummary.sizes,
                     price,
+                    priceMin: Number(p?.priceMin) || Number(variantSummary.priceMin) || price,
+                    priceMax: Number(p?.priceMax) || Number(variantSummary.priceMax) || price,
                     orig: Number(p?.orig || p?.originalPrice || price) || price,
+                    qty: Number(p?.qty) || Number(variantSummary.qty) || 0,
                     sold,
                     rating: Number(p?.rating) || 0,
                     coinBack: Number(p?.coinBack) || Math.max(1, Math.round((price * 0.05) / 1000)),
@@ -771,8 +878,8 @@
                 return rewardedOrderIdsRef.current;
             };
             useEffect(() => {
-                if (!user?.phone || authStep !== "done" || !orders.length) {
-                    if (!user?.phone || authStep !== "done") {
+                if (!user?.phone || authStep !== "done" || user?.type === "partner" || !orders.length) {
+                    if (!user?.phone || authStep !== "done" || user?.type === "partner") {
                         syncedOrderIdsRef.current = null;
                     }
                     return;
@@ -784,6 +891,7 @@
                 if (ordersyncRef.current) clearTimeout(ordersyncRef.current);
                 ordersyncRef.current = setTimeout(() => {
                     orders.forEach(order => {
+                        if (order?.type === "partner_order") return;
                         if (!syncedOrderIdsRef.current.has(order.id)) {
                             syncedOrderIdsRef.current.add(order.id);
                             // Bỏ img khỏi items để tránh URL JSONP quá dài → GAS parse lỗi
@@ -796,8 +904,10 @@
                                     shopName: i.shopName || i.shop || "",
                                     img: i.img || "",
                                     imageSrc: i.imageSrc || "",
-                                    images: parseProductImages(i.images).slice(0, 3),
+                                    images: parseProductImages(i.images).slice(0, 5),
                                     name: i.name,
+                                    variant: i.variant || null,
+                                    variantLabel: i.variantLabel || "",
                                     qty: i.qty,
                                     price: i.price
                                 }))
@@ -809,7 +919,7 @@
                     });
                 }, 2000);
                 return () => { if (ordersyncRef.current) clearTimeout(ordersyncRef.current) };
-            }, [orders, user?.phone, authStep]);
+            }, [orders, user?.phone, user?.type, authStep]);
 
             /* ═══ SYNC MATCH INFO TỪ GD2 KHI match_status >= 4 ═══ */
             useEffect(() => {
@@ -844,7 +954,7 @@
                             }
                             setCoins(res.coins);
                         }
-                        if (Array.isArray(res.orders) && res.orders.length) {
+                        if (user?.type !== "partner" && Array.isArray(res.orders) && res.orders.length) {
                             const updatedOrders = res.orders.map(o => {
                                 if (o.coinRewarded && o.coinReward !== undefined && Number(o.coinReward) > 0) {
                                     const rewardedSet = getRewardedOrderIds();
@@ -867,7 +977,7 @@
                         if (res.matchStatus !== undefined || res.match_status !== undefined) setUser(u => ({ ...u, matchStatus: res.matchStatus ?? u.matchStatus, match_status: res.match_status ?? u.match_status ?? 0, isPaidND: res.isPaidND ?? u.isPaidND, package: res.package ?? u.package }));
                     })
                     .catch(() => {});
-            }, [authStep, user?.phone]);
+            }, [authStep, user?.phone, user?.type]);
 
             /* ═══ PERIODIC SYNC: ĐỒNG BỘ TOÀN BỘ DỮ LIỆU TỪ SHEET (mỗi 10s) ═══ */
             useEffect(() => {
@@ -903,7 +1013,7 @@
                                 }
                             }
                             // Sync orders
-                            if (Array.isArray(res.orders)) {
+                            if (user?.type !== "partner" && Array.isArray(res.orders)) {
                                 const updatedOrders = res.orders.map(o => {
                                     if (o.coinRewarded && o.coinReward !== undefined && Number(o.coinReward) > 0) {
                                         const rewardedSet = getRewardedOrderIds();
@@ -965,7 +1075,7 @@
                     }
                 }, 10000); // 10s
                 return () => clearInterval(syncInterval);
-            }, [authStep, user?.phone, coins, pendingTopups.length, seenNotiIds]);
+            }, [authStep, user?.phone, user?.type, coins, pendingTopups.length, seenNotiIds]);
 
             /* ═══ COIN SYNC → SHEET: chỉ khi user tự spend (không ghi đè coins từ server) ═══ */
             // Khi user spend coin trong app, addCoin/spend đã log tx riêng qua action: "logTx".
@@ -990,11 +1100,51 @@
                     return false;
                 }
             };
+            const loadDailyBoxStatus = async () => {
+                if (!user?.phone || authStep !== "done") return;
+                try {
+                    const res = await sheetCall({ action: "getDailyBoxStatus", phone: user.phone });
+                    if (res?.status === "ok") setDailyBox(res);
+                } catch {}
+            };
+            useEffect(() => {
+                if (tab === "box" && authStep === "done" && user?.phone) loadDailyBoxStatus();
+            }, [tab, authStep, user?.phone]);
+            const openDailyBox = async () => {
+                if (!user?.phone || dailyBoxLoading) return;
+                const nextCost = Number(dailyBox?.nextCost || 0);
+                if (nextCost > 0 && coins < nextCost) { show("Không đủ coin để mở thêm Daily Box!"); return; }
+                setDailyBoxLoading(true);
+                try {
+                    const res = await sheetCall({ action: "openDailyBox", phone: user.phone });
+                    if (res?.status !== "ok") { show(res?.message || "Không mở được Daily Box"); return; }
+                    if (res.balanceAfter !== undefined) setCoins(Number(res.balanceAfter));
+                    if (Number(res.dailyBox?.coinCost) > 0) {
+                        setCoinHist(h => [{ date: dd(), desc: "Mở thêm Duyên Box Daily", amount: -Number(res.dailyBox.coinCost), type: "spend" }, ...h]);
+                    }
+                    setDailyBox({ status: "ok", dateKey: res.dailyBox?.dateKey, openedCount: res.openedCount, nextCost: res.nextCost, lastBox: res.dailyBox });
+                    show(res.dailyBox?.isFree ? "Đã mở Daily Box miễn phí hôm nay!" : "Đã mở thêm Daily Box!");
+                } catch {
+                    show("Lỗi kết nối. Daily Box chưa được mở.");
+                } finally {
+                    setDailyBoxLoading(false);
+                }
+            };
             const cartTotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
             const cartCount = cart.reduce((s, i) => s + i.qty, 0);
             const cartCoinBack = cart.reduce((s, i) => s + (i.coinBack || 0) * i.qty, 0);
-            const addToCart = p => { setCart(c => { const e = c.find(i => i.id === p.id); return e ? c.map(i => i.id === p.id ? { ...i, qty: i.qty + 1 } : i) : [...c, { ...p, qty: 1 }] }); show("✓ " + p.name) };
-            const updQty = (id, d) => setCart(c => c.map(i => i.id === id ? { ...i, qty: Math.max(0, i.qty + d) } : i).filter(i => i.qty > 0));
+            const addToCart = p => {
+                const pickedVariant = p.variant || (Array.isArray(p.variants) && p.variants.length ? p.variants[0] : null);
+                const pickedLabel = p.variantLabel || (pickedVariant ? variantLabel(pickedVariant) : "");
+                const item = pickedVariant ? { ...p, price: Number(pickedVariant.price) || Number(p.price) || 0, variant: pickedVariant, variantLabel: pickedLabel } : p;
+                const key = item.cartKey || (item.id + (pickedLabel ? "_" + pickedLabel : ""));
+                setCart(c => {
+                    const e = c.find(i => (i.cartKey || i.id) === key);
+                    return e ? c.map(i => (i.cartKey || i.id) === key ? { ...i, qty: i.qty + 1 } : i) : [...c, { ...item, cartKey: key, qty: 1 }];
+                });
+                show("✓ " + item.name + (item.variantLabel ? " · " + item.variantLabel : ""));
+            };
+            const updQty = (id, d) => setCart(c => c.map(i => (i.cartKey || i.id) === id ? { ...i, qty: Math.max(0, i.qty + d) } : i).filter(i => i.qty > 0));
             const loveDays = loveDate ? Math.max(0, Math.floor((Date.now() - new Date(loveDate).getTime()) / 864e5)) : null;
             const goCheckout = () => { if (!cart.length) return; setShipName(user?.name || ""); setShipPhone(user?.phone || ""); setShipCity(user?.city || ""); setShipD(user?.district || ""); setShipW(user?.ward || ""); setShipSt(user?.street || ""); setShipNote(""); setScreen("checkout") };
             const confirmOrder = async () => {
@@ -1012,8 +1162,10 @@
                         shopName: i.shopName || i.shop || "",
                         img: i.img || "",
                         imageSrc: i.imageSrc || "",
-                        images: parseProductImages(i.images).slice(0, 3),
+                        images: parseProductImages(i.images).slice(0, 5),
                         name: i.name,
+                        variant: i.variant || null,
+                        variantLabel: i.variantLabel || "",
                         qty: i.qty,
                         price: i.price
                     })),
@@ -1035,25 +1187,49 @@
                 setScreen("orderOk");
                 setSData({ order: o, ec: cartCoinBack })
             };
-            const openBox = async (b) => {
-                if (!(await spend(b.cost, "Mở " + b.name))) return;
+            const openBox = (b) => {
+                if (coins < b.cost) { show("Chưa đủ coin để mở " + b.name); return; }
+                setSelectedBox(b);
+                setBoxMood(b.id === "emotion" ? (b.moods?.[0] || "") : "");
+                setShipName(user?.name || "");
+                setShipPhone(user?.phone || "");
+                setShipCity(user?.city || "");
+                setShipD(user?.district || "");
+                setShipW(user?.ward || "");
+                setShipSt(user?.street || "");
+                setShipNote("");
+                setScreen("boxCheckout");
+            };
+            const confirmOpenDuyenBox = async () => {
+                const b = selectedBox;
+                if (!b) return;
+                if (!shipName || !/^0\d{9}$/.test(shipPhone) || !shipCity || !shipD || !shipW || !shipSt) {
+                    show("Vui lòng điền đủ thông tin người nhận để shop giao trong 2–4h!");
+                    return;
+                }
+                if (b.id === "emotion" && !boxMood) { show("Chọn tâm trạng cho Duyên Box Cảm Xúc nhé"); return; }
                 setBoxOpening(true);
+                setBoxResult(null);
                 setSData(b);
-                setTimeout(() => {
-                    const pool = (Array.isArray(b.possible) && b.possible.length) ? b.possible : ["🎁 Quà bí ẩn"];
-                    const p = pool[Math.floor(Math.random() * pool.length)];
-                    const newOrder = { id: "BOX" + Date.now() + "_" + (user?.phone || "").slice(-4), date: new Date().toLocaleDateString("vi-VN"), items: [{ name: b.name + ": " + p, qty: 1, price: 0 }], status: "Đang chuẩn bị", coin: b.cost, coinReward: 0, type: "box", addressConfirmed: false };
-                    setBoxResult(p);
+                setScreen(null);
+                try {
+                    const ship = { name: shipName, phone: shipPhone, addr: `${shipSt}, ${shipW}, ${shipD}, ${shipCity}`, city: shipCity, district: shipD, ward: shipW, note: shipNote };
+                    const res = await sheetCall({ action: "openDuyenBox", phone: user.phone, boxId: b.id, mood: boxMood, ship });
+                    if (res?.status !== "ok") {
+                        setBoxOpening(false);
+                        show(res?.message || "Chưa mở được Duyên Box");
+                        return;
+                    }
+                    if (res.balanceAfter !== undefined) setCoins(Number(res.balanceAfter));
+                    if (Number(b.cost) > 0) setCoinHist(h => [{ date: dd(), desc: "Mở " + b.name, amount: -Number(b.cost), type: "spend" }, ...h]);
+                    if (res.order) setOrders(o => [res.order, ...o.filter(x => x.id !== res.order.id)]);
+                    setBoxResult(res);
                     setBoxOpening(false);
-                    setOrders(o => [newOrder, ...o]);
-                    setConfirmingOrder(newOrder);
-                    setShipName(user?.name || "");
-                    setShipPhone(user?.phone || "");
-                    setShipCity(user?.city || "");
-                    setShipD(user?.district || "");
-                    setShipW(user?.ward || "");
-                    setShipSt(user?.street || "");
-                }, 2000)
+                    show("Đã mở " + b.name + "!");
+                } catch (e) {
+                    setBoxOpening(false);
+                    show("Lỗi kết nối. Duyên Box chưa được mở.");
+                }
             };
 
             const finishPinLogin = (sheetUserToUse) => {
@@ -1086,7 +1262,7 @@
 
             const submitPinLogin = async () => {
                 if (!/^0\d{9}$/.test(rP)) { setOtpE("Số điện thoại phải có 10 số và bắt đầu bằng 0"); return }
-                if (!/^\d{4}$/.test(rPin)) { setOtpE("Mật khẩu phải gồm đúng 4 số"); return }
+                if (!PIN_LOGIN_RE.test(rPin)) { setOtpE("Mật khẩu không hợp lệ"); return }
                 setOtpE("");
                 try {
                     const result = await sheetCall({ action: "pinLogin", phone: rP, pin: rPin });
@@ -1105,7 +1281,7 @@
 
             const startPinRegistration = async () => {
                 if (!/^0\d{9}$/.test(rP)) { setOtpE("Số điện thoại phải có 10 số và bắt đầu bằng 0"); return }
-                if (!/^\d{4}$/.test(rPin)) { setOtpE("Mật khẩu phải gồm đúng 4 số"); return }
+                if (!PIN_NEW_RE.test(rPin)) { setOtpE("Mật khẩu mới phải gồm đúng 6 số"); return }
                 if (rPin !== rPin2) { setOtpE("Hai mật khẩu không trùng nhau"); return }
                 setOtpE("");
                 try {
@@ -1116,6 +1292,12 @@
                     }
                     setSessionToken(result.sessionToken);
                     LS.save('sessionToken', result.sessionToken);
+                    if (result.user) {
+                        LS.save('pendingRegistration', null);
+                        setRPin(""); setRPin2("");
+                        finishPinLogin(result.user);
+                        return;
+                    }
                     LS.save('pendingRegistration', { phone: rP, userType, step: "info", sheetUser: null, expiry: Date.now() + 30 * 60 * 1000 });
                     setRPin(""); setRPin2("");
                     setAuthStep("info");
@@ -1229,16 +1411,16 @@
 
             // Config động với fallback về hardcode
             const cfgCoinPacks = (appConfig?.coinPacks && Array.isArray(appConfig.coinPacks) && appConfig.coinPacks.length) ? appConfig.coinPacks : COIN_PACKS;
-            const cfgBoxes = (appConfig?.boxes && Array.isArray(appConfig.boxes) && appConfig.boxes.length) ? appConfig.boxes.map(b => {
-                // Lấy các field cần cho việc mở box (possible, highlight...) từ BOXES gốc theo id
-                const base = BOXES.find(x => x.id === b.id) || {};
+            const cfgBoxes = BOXES.map(base => {
+                const fromConfig = (appConfig?.boxes && Array.isArray(appConfig.boxes)) ? appConfig.boxes.find(b => b.id === base.id) : null;
+                const b = fromConfig || {};
                 return {
                     ...base,
                     ...b,
-                    color: b.color || base.color || (b.id === "love" ? C.primary : b.id === "vip" ? C.gold : b.id === "svip" ? "#9B8EC4" : C.lav),
+                    color: b.color || base.color,
                     possible: (Array.isArray(b.possible) && b.possible.length) ? b.possible : (base.possible || ["🎁 Quà bí ẩn"])
                 };
-            }) : BOXES;
+            });
             const cfgBank = (appConfig?.bank && appConfig.bank.number) ? appConfig.bank : BANK;
             const cfgNdPackages = (appConfig?.ndPackages && Array.isArray(appConfig.ndPackages) && appConfig.ndPackages.length) ? appConfig.ndPackages : null;
 
@@ -1398,9 +1580,9 @@
                     <div style={{ fontSize: 14, color: C.tl, marginBottom: 20 }}>{userType === "partner" ? "Đối tác" : "Khách hàng"}</div>
                     <div style={{ width: "100%", maxWidth: 320 }}>
                         <Inp label="Số điện thoại" value={rP} onChange={v => setRP(v.replace(/\D/g, ""))} placeholder="0912 345 678" type="tel" maxLength={11} />
-                        <Inp label="Mật khẩu 4 số" value={rPin} onChange={v => setRPin(v.replace(/\D/g, ""))} placeholder="••••" type="password" inputMode="numeric" maxLength={4} autoComplete="current-password" />
+                        <Inp label="Mật khẩu 6 số" value={rPin} onChange={v => setRPin(v.replace(/\D/g, ""))} placeholder="••••••" type="password" inputMode="numeric" maxLength={6} autoComplete="current-password" />
                         {otpE && <div style={{ fontSize: 14, color: C.no, marginTop: -8, marginBottom: 8 }}>{otpE}</div>}
-                        <Btn primary full onClick={submitPinLogin} disabled={!/^0\d{9}$/.test(rP) || !/^\d{4}$/.test(rPin)}>Đăng nhập</Btn>
+                        <Btn primary full onClick={submitPinLogin} disabled={!/^0\d{9}$/.test(rP) || !PIN_LOGIN_RE.test(rPin)}>Đăng nhập</Btn>
                         <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "16px 0", color: C.tl, fontSize: 12 }}><div style={{ height: 1, background: "#E5DAD6", flex: 1 }}></div>hoặc<div style={{ height: 1, background: "#E5DAD6", flex: 1 }}></div></div>
                         <Btn full onClick={() => { setOtpE(""); setRPin(""); setRPin2(""); setAuthStep("createPin"); }} style={{ border: "1px solid " + C.primary + "60", color: C.primary }}>Tạo tài khoản mới</Btn>
                         <div onClick={() => setAuthStep("choose")} style={{ textAlign: "center", marginTop: 14, fontSize: 14, color: C.primary, cursor: "pointer", fontWeight: 600 }}>← Quay lại</div>
@@ -1411,11 +1593,11 @@
                     <div style={{ fontSize: 13, color: C.tl, marginBottom: 16, textAlign: "center" }}>{userType === "partner" ? "Đối tác" : "Khách hàng"} · Tự đặt mật khẩu dễ nhớ</div>
                     <div style={{ width: "100%", maxWidth: 320 }}>
                         <Inp label="Số điện thoại" value={rP} onChange={v => setRP(v.replace(/\D/g, ""))} placeholder="0912 345 678" type="tel" maxLength={11} />
-                        <Inp label="Tạo mật khẩu 4 số" value={rPin} onChange={v => setRPin(v.replace(/\D/g, ""))} placeholder="••••" type="password" inputMode="numeric" maxLength={4} autoComplete="new-password" />
-                        <Inp label="Nhập lại mật khẩu" value={rPin2} onChange={v => setRPin2(v.replace(/\D/g, ""))} placeholder="••••" type="password" inputMode="numeric" maxLength={4} autoComplete="new-password" />
+                        <Inp label="Tạo mật khẩu 6 số" value={rPin} onChange={v => setRPin(v.replace(/\D/g, ""))} placeholder="••••••" type="password" inputMode="numeric" maxLength={6} autoComplete="new-password" />
+                        <Inp label="Nhập lại mật khẩu" value={rPin2} onChange={v => setRPin2(v.replace(/\D/g, ""))} placeholder="••••••" type="password" inputMode="numeric" maxLength={6} autoComplete="new-password" />
                         {otpE && <div style={{ fontSize: 14, color: C.no, marginTop: -8, marginBottom: 8 }}>{otpE}</div>}
                         <div style={{ fontSize: 11, color: C.tl, lineHeight: 1.5, marginBottom: 12 }}>Hãy ghi nhớ mật khẩu này. Mật khẩu được mã hóa và không hiển thị lại.</div>
-                        <Btn primary full onClick={startPinRegistration} disabled={!/^0\d{9}$/.test(rP) || !/^\d{4}$/.test(rPin) || rPin !== rPin2}>Tiếp tục đăng ký</Btn>
+                        <Btn primary full onClick={startPinRegistration} disabled={!/^0\d{9}$/.test(rP) || !PIN_NEW_RE.test(rPin) || rPin !== rPin2}>Tiếp tục đăng ký</Btn>
                         <div onClick={() => { setOtpE(""); setRPin(""); setRPin2(""); setAuthStep("phone"); }} style={{ textAlign: "center", marginTop: 14, fontSize: 14, color: C.primary, cursor: "pointer", fontWeight: 600 }}>← Quay lại đăng nhập</div>
                     </div></>);
 
@@ -1493,7 +1675,7 @@
                 const shopCat  = user.shopCategory || user.shop?.cat || "";
                 const unreadP  = partnerNotifs.filter(n => !n.read).length;
                 const resetProductForm = () => {
-                    setPProdName(""); setPProdPrice(""); setPProdQty(""); setPProdCat(""); setPProdDesc(""); setPProdImages([]);
+                    setPProdName(""); setPProdPrice(""); setPProdQty(""); setPProdCat(STORE_CATEGORIES[0]); setPProdDesc(""); setPProdImages([]); setPProdVariants([{ color: "", size: "", price: "", qty: "" }]);
                 };
                 const closeProductForm = () => { setShowAddProduct(false); setEditingProduct(null); };
                 const openNewProductForm = () => { setEditingProduct(null); resetProductForm(); setShowAddProduct(true); };
@@ -1504,9 +1686,11 @@
                     setPProdName(p?.name || "");
                     setPProdPrice(p?.price ? String(parseInt(p.price)) : "");
                     setPProdQty(p?.qty ? String(parseInt(p.qty)) : "");
-                    setPProdCat(p?.cat || "Duyên Store");
+                    setPProdCat(p?.cat || STORE_CATEGORIES[0]);
                     setPProdDesc(p?.desc || "");
                     setPProdImages(imgs.slice(0, MAX_PRODUCT_IMAGES).map((url, i) => ({ url, name: "Ảnh " + (i + 1) })));
+                    const variants = cleanProductVariants(p?.variants);
+                    setPProdVariants(variants.length ? variants.map(v => ({ color: v.color || "", size: v.size || "", price: v.price ? String(parseInt(v.price)) : "", qty: v.qty ? String(parseInt(v.qty)) : "" })) : [{ color: "", size: p?.size || "", price: p?.price ? String(parseInt(p.price)) : "", qty: p?.qty ? String(parseInt(p.qty)) : "" }]);
                     setShowAddProduct(true);
                 };
                 const reloadPartnerProducts = () => sheetCall({ action: "getShopProducts", shopPhone: user.phone })
@@ -1521,6 +1705,16 @@
                             reloadPartnerProducts().catch(() => {});
                         } else show("Không xóa được: " + (res?.message || "Thử lại sau"));
                     } catch { show("Lỗi kết nối. Chưa xóa được sản phẩm."); }
+                };
+                const updatePartnerOrderStatus = async (order, status) => {
+                    try {
+                        const res = await sheetCall({ action: "updateOrderStatus", data: { id: order.id, status } });
+                        if (res?.status !== "ok") { show(res?.message || "Chưa cập nhật được đơn"); return; }
+                        setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status, sourceOrderId: res.sourceOrderId || o.sourceOrderId } : o));
+                        show("Đã cập nhật: " + status);
+                    } catch {
+                        show("Lỗi kết nối. Trạng thái chưa được lưu.");
+                    }
                 };
 
                 /* ── Form đăng sản phẩm ── */
@@ -1537,8 +1731,31 @@
                                     <Inp label="Giá bán (đ) *" value={pProdPrice} onChange={v => setPProdPrice(v.replace(/\D/g,""))} type="tel" placeholder="150000" />
                                     <Inp label="Số lượng" value={pProdQty} onChange={v => setPProdQty(v.replace(/\D/g,""))} type="tel" placeholder="10" />
                                 </div>
-                                <Sel label="Danh mục *" value={pProdCat} onChange={setPProdCat} options={["Duyên Store", "Duyên Box"]} />
+                                <Sel label="Ngành hàng Duyên Store *" value={pProdCat} onChange={setPProdCat} options={STORE_CATEGORIES} />
                                 <Inp label="Mô tả" value={pProdDesc} onChange={setPProdDesc} placeholder="Mô tả sản phẩm..." rows={2} />
+                                <div style={{ background: "#fff", border: "1px solid #EDE7E4", borderRadius: 12, padding: 10, marginBottom: 10 }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                                        <div>
+                                            <div style={{ fontSize: 12, fontWeight: 800, color: C.brown }}>Phân loại màu/kích cỡ/giá</div>
+                                            <div style={{ fontSize: 10, color: C.tl, marginTop: 1 }}>Ví dụ: Đỏ / M / 189000đ</div>
+                                        </div>
+                                        <div onClick={() => setPProdVariants(prev => [...prev, { color: "", size: "", price: "", qty: "" }])} style={{ fontSize: 11, fontWeight: 800, color: C.blue, background: C.blue + "14", padding: "5px 8px", borderRadius: 8, cursor: "pointer" }}>+ Thêm</div>
+                                    </div>
+                                    {pProdVariants.map((v, idx) => (
+                                        <div key={idx} style={{ background: C.bg2, borderRadius: 10, padding: 8, marginBottom: 6 }}>
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                                                <div style={{ fontSize: 11, fontWeight: 700, color: C.tl }}>Phân loại {idx + 1}</div>
+                                                {pProdVariants.length > 1 && <div onClick={() => setPProdVariants(prev => prev.filter((_, j) => j !== idx))} style={{ fontSize: 11, color: C.no, fontWeight: 800, cursor: "pointer" }}>Xóa</div>}
+                                            </div>
+                                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                                                <Inp label="Màu sắc" value={v.color} onChange={val => setPProdVariants(prev => prev.map((x, j) => j === idx ? { ...x, color: val } : x))} placeholder="Đỏ/Hồng/Đen" />
+                                                <Inp label="Kích cỡ" value={v.size} onChange={val => setPProdVariants(prev => prev.map((x, j) => j === idx ? { ...x, size: val } : x))} placeholder="S/M/L/50ml" />
+                                                <Inp label="Giá loại này" value={v.price} onChange={val => setPProdVariants(prev => prev.map((x, j) => j === idx ? { ...x, price: val.replace(/\D/g,"") } : x))} type="tel" placeholder="189000" />
+                                                <Inp label="Tồn kho" value={v.qty} onChange={val => setPProdVariants(prev => prev.map((x, j) => j === idx ? { ...x, qty: val.replace(/\D/g,"") } : x))} type="tel" placeholder="5" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                                 {/* Upload ảnh thật */}
                                 <div style={{ marginBottom: 10 }}>
                                     <div style={{ fontSize: 12, color: C.tl, marginBottom: 6 }}>Hình ảnh sản phẩm</div>
@@ -1571,13 +1788,17 @@
                                             </label>
                                         )}
                                     </div>
-                                    <div style={{ fontSize: 10, color: C.tl }}>Tối đa 3 ảnh · app tự nén để lưu vào cột images</div>
+                                    <div style={{ fontSize: 10, color: C.tl }}>Tối đa 5 ảnh · app tự nén để lưu vào cột images</div>
                                 </div>
                                 <div style={{ height: 8 }} />
                                  <Btn blue full onClick={async () => {
                                     if (pImageBusy) { show("Đợi nén ảnh xong rồi đăng nhé"); return; }
-                                     if (!pProdName.trim() || !pProdPrice || !pProdCat) { show("Điền đủ tên, giá và danh mục!"); return; }
-                                     const prod = { id: editingProduct?.id || ("PRD" + Date.now()), name: pProdName.trim(), price: parseInt(pProdPrice), qty: parseInt(pProdQty) || 0, cat: pProdCat, desc: pProdDesc, shopPhone: user.phone, shopName, shopCat, images: pProdImages.map(i => i.url), status: "active" };
+                                     const variants = cleanProductVariants(pProdVariants);
+                                     const variantSummary = summarizeVariants(variants, pProdPrice, pProdQty);
+                                     const finalPrice = parseInt(pProdPrice) || variantSummary.priceMin || 0;
+                                     const finalQty = variants.length ? variantSummary.qty : (parseInt(pProdQty) || 0);
+                                     if (!pProdName.trim() || !finalPrice || !pProdCat) { show("Điền đủ tên, giá và ngành hàng!"); return; }
+                                     const prod = { id: editingProduct?.id || ("PRD" + Date.now()), name: pProdName.trim(), price: finalPrice, qty: finalQty, cat: pProdCat, desc: pProdDesc, shopPhone: user.phone, shopName, shopCat, images: pProdImages.map(i => i.url), colors: variantSummary.colors, sizes: variantSummary.sizes, variants, status: "active" };
                                     try {
                                         const res = await sheetCall({ action: editingProduct ? "updateProduct" : "addProduct", data: { ...prod, images: prod.images } });
                                         if (res?.status === "ok") {
@@ -1744,8 +1965,8 @@
                                         <div style={{ width: 52, height: 52, flexShrink: 0 }}><ProductImage p={p} height={52} fontSize={24} radius={9} /></div>
                                         <div style={{ flex: 1 }}>
                                             <div style={{ fontSize: 13, fontWeight: 700, color: C.brown, marginBottom: 2 }}>{p.name}</div>
-                                            <div style={{ fontSize: 11, color: C.tl }}>{p.cat} · {p.qty ? "Còn " + p.qty : "Không giới hạn"}</div>
-                                            <div style={{ fontSize: 13, fontWeight: 700, color: C.blue, marginTop: 2 }}>{parseInt(p.price || 0).toLocaleString("vi-VN")}đ</div>
+                                            <div style={{ fontSize: 11, color: C.tl }}>{p.cat} · {p.qty ? "Còn " + p.qty : "Không giới hạn"}{p.variants?.length ? " · " + p.variants.length + " phân loại" : ""}</div>
+                                            <div style={{ fontSize: 13, fontWeight: 700, color: C.blue, marginTop: 2 }}>{productPriceText(p)}</div>
                                         </div>
                                         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
                                             <div style={{ fontSize: 10, padding: "2px 7px", borderRadius: 6, background: "#E8F5E9", color: C.ok, fontWeight: 600 }}>Đang bán</div>
@@ -1781,16 +2002,37 @@
                                             <div style={{ fontSize: 12, color: C.tl }}>Khi khách đặt hàng thành công, đơn sẽ xuất hiện ở đây và thông báo sẽ gửi vào Trợ Lý Đối Tác.</div>
                                         </div>
                                     ) : pOrders.map((o, i) => {
-                                        const itemNames = (o.items || []).map(it => `${it.name || "Sản phẩm"} × ${it.qty || 1}`).join(", ");
+                                        const itemNames = (o.items || []).map(it => `${it.name || "Sản phẩm"}${it.variantLabel ? " · " + it.variantLabel : ""} × ${it.qty || 1}`).join(", ");
                                         const total = Number(o.total) || (o.items || []).reduce((a, it) => a + (Number(it.price) || 0) * (Number(it.qty) || 1), 0);
+                                        const ship = o.ship || {};
+                                        const buyerName = o.buyerName || ship.name || "Khách hàng";
+                                        const buyerPhone = o.buyerShipPhone || o.buyerPhone || ship.phone || "";
+                                        const buyerAddr = o.buyerAddr || ship.addr || "";
+                                        const buyerPlace = [o.buyerWard || ship.ward, o.buyerDistrict || ship.district, o.buyerCity || ship.city].filter(Boolean).join(", ");
+                                        const currentStatus = o.status || "Đang chuẩn bị";
                                         return (
                                             <div key={o.id || i} style={{ background: "#fff", borderRadius: 12, padding: 12, marginBottom: 8, border: "1px solid #EDE7E4" }}>
                                                 <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 5 }}>
                                                     <div style={{ fontSize: 13, fontWeight: 800, color: C.brown }}>#{o.id}</div>
-                                                    <div style={{ fontSize: 11, fontWeight: 700, color: C.blue, background: C.blue + "14", padding: "2px 7px", borderRadius: 8 }}>{o.status || "Đang xử lý"}</div>
+                                                    <div style={{ fontSize: 11, fontWeight: 700, color: currentStatus === "Giao hàng thành công" ? C.ok : C.blue, background: (currentStatus === "Giao hàng thành công" ? C.ok : C.blue) + "14", padding: "2px 7px", borderRadius: 8 }}>{currentStatus}</div>
                                                 </div>
                                                 <div style={{ fontSize: 12, color: C.text, lineHeight: 1.45 }}>{itemNames || "Đơn hàng Duyên Store"}</div>
-                                                <div style={{ fontSize: 11, color: C.tl, marginTop: 4 }}>{o.buyerName || o.ship?.name || "Khách hàng"} · {o.buyerShipPhone || o.buyerPhone || o.ship?.phone || ""}</div>
+                                                {o.boxType && <div style={{ marginTop: 8, background: "#FFF7E8", borderRadius: 10, padding: "8px 9px", border: `1px solid ${C.gold}44` }}>
+                                                    <div style={{ fontSize: 11, fontWeight: 900, color: C.gold }}>🎁 Đơn Duyên Box {o.boxMood ? "· " + o.boxMood : ""}</div>
+                                                    {o.aiMessage && <div style={{ fontSize: 11, color: C.brown, lineHeight: 1.45, marginTop: 4 }}>Lời nhắn: {o.aiMessage}</div>}
+                                                    {Number(o.shopCoin) > 0 && <div style={{ fontSize: 11, color: C.ok, fontWeight: 800, marginTop: 4 }}>Shop nhận {o.shopCoin} coin sau khi giao thành công {o.shopVnd ? "· đối soát " + fmt(o.shopVnd) : ""}</div>}
+                                                </div>}
+                                                <div style={{ marginTop: 8, background: C.bg2, borderRadius: 10, padding: "8px 9px" }}>
+                                                    <div style={{ fontSize: 11, fontWeight: 800, color: C.brown, marginBottom: 3 }}>Người đặt / nhận hàng</div>
+                                                    <div style={{ fontSize: 12, color: C.text, fontWeight: 700 }}>{buyerName} · {buyerPhone}</div>
+                                                    {(buyerAddr || buyerPlace) && <div style={{ fontSize: 11, color: C.tl, marginTop: 2, lineHeight: 1.4 }}>📍 {[buyerAddr, buyerPlace].filter(Boolean).join(", ")}</div>}
+                                                    {(o.note || ship.note) && <div style={{ fontSize: 11, color: C.tl, marginTop: 2 }}>Ghi chú: {o.note || ship.note}</div>}
+                                                </div>
+                                                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+                                                    {PARTNER_ORDER_STATUSES.map(st => (
+                                                        <div key={st} onClick={() => currentStatus !== st && updatePartnerOrderStatus(o, st)} style={{ fontSize: 11, padding: "5px 8px", borderRadius: 9, cursor: currentStatus === st ? "default" : "pointer", fontWeight: 800, color: currentStatus === st ? "#fff" : C.blue, background: currentStatus === st ? C.blue : C.blue + "12", border: "1px solid " + C.blue + "24" }}>{st}</div>
+                                                    ))}
+                                                </div>
                                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8, paddingTop: 8, borderTop: "1px dashed #EDE7E4" }}>
                                                     <span style={{ fontSize: 11, color: C.tl }}>{o.createdAt ? new Date(o.createdAt).toLocaleString("vi-VN") : (o.date || "")}</span>
                                                     <span style={{ fontSize: 15, fontWeight: 900, color: C.blue }}>{fmt(total)}</span>
@@ -1926,12 +2168,34 @@
 
                     {tab === "box" && <div style={{ padding: 12 }}>
                         <div style={{ textAlign: "center", marginBottom: 12 }}><div style={{ fontSize: 34 }}>🎁</div><div style={{ fontSize: 18, fontWeight: 800 }}>Duyên Box</div><div style={{ fontSize: 13, color: C.tl }}>Hộp quà bất ngờ!</div></div>
+                        <div style={{ background: "linear-gradient(135deg,#FFF7E8,#FFF0ED)", borderRadius: 16, padding: 14, marginBottom: 12, border: `1.5px solid ${C.gold}55`, boxShadow: "0 4px 14px rgba(240,196,155,0.16)" }}>
+                            <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                                <div style={{ width: 54, height: 54, borderRadius: 14, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>🌤️</div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                                        <div style={{ fontSize: 15, fontWeight: 800, color: C.brown }}>Duyên Box Daily</div>
+                                        <div style={{ fontSize: 10, fontWeight: 800, color: C.gold, background: "#fff", borderRadius: 10, padding: "3px 7px" }}>FREE 1 LẦN/NGÀY</div>
+                                    </div>
+                                    <div style={{ fontSize: 12, color: C.tl, lineHeight: 1.5, marginTop: 3 }}>Mỗi ngày mở miễn phí 1 hộp nội dung cá nhân hóa. Mở thêm trong ngày: 5 coin/lần.</div>
+                                    {dailyBox?.lastBox && <div style={{ marginTop: 10, background: "#fff", borderRadius: 12, padding: 10, border: "1px solid #F4E3DA" }}>
+                                        <div style={{ fontSize: 13, fontWeight: 800, color: C.primary }}>{dailyBox.lastBox.title}</div>
+                                        <div style={{ fontSize: 12, color: C.text, lineHeight: 1.55, marginTop: 4 }}>{dailyBox.lastBox.content}</div>
+                                        <div style={{ fontSize: 11, color: C.brown, marginTop: 6, fontWeight: 600 }}>{dailyBox.lastBox.suggestion}</div>
+                                        <div style={{ fontSize: 10, color: dailyBox.lastBox.source === "gemini_2_5_flash" ? C.primary : C.tl, marginTop: 6 }}>{dailyBox.lastBox.source === "gemini_2_5_flash" ? "✨ Gemini đã cá nhân hóa Daily Box này" : "⚙️ Nội dung mẫu dự phòng"}</div>
+                                    </div>}
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10, gap: 8 }}>
+                                        <div style={{ fontSize: 11, color: C.tl }}>Hôm nay đã mở <b>{Number(dailyBox?.openedCount || 0)}</b> lần · Lần tới: {Number(dailyBox?.nextCost || 0) === 0 ? "Miễn phí" : "5 coin"}</div>
+                                        <Btn small gold onClick={openDailyBox} disabled={dailyBoxLoading || (Number(dailyBox?.nextCost || 0) > 0 && coins < Number(dailyBox?.nextCost || 0))}>{dailyBoxLoading ? "Đang mở..." : Number(dailyBox?.nextCost || 0) === 0 ? "Mở Daily" : "Mở thêm · 5 coin"}</Btn>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         {cfgBoxes.map(b => <div key={b.id} style={{ background: "#fff", borderRadius: 14, padding: 14, marginBottom: 10, border: b.popular ? `2px solid ${b.color}` : "1px solid #EDE7E4", position: "relative", overflow: "hidden" }}>
                             {b.popular && <div style={{ position: "absolute", top: 0, right: 0, background: b.color, color: "#fff", fontSize: 10, fontWeight: 700, padding: "3px 10px", borderBottomLeftRadius: 10 }}>HOT 🔥</div>}
                             {b.stock && b.stock <= 20 && <div style={{ position: "absolute", top: 0, left: 0, background: C.no, color: "#fff", fontSize: 10, fontWeight: 700, padding: "3px 8px", borderBottomRightRadius: 10 }}>Còn {b.stock}!</div>}
                             <div style={{ display: "flex", gap: 12 }}><div style={{ width: 56, height: 56, borderRadius: 12, background: b.color + "22", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, flexShrink: 0 }}>{b.emoji}</div><div style={{ flex: 1 }}><div style={{ fontSize: 15, fontWeight: 700 }}>{b.name}</div><div style={{ fontSize: 12, color: C.tl, fontStyle: "italic" }}>{b.tagline}</div><div style={{ fontSize: 11, color: C.tl, marginTop: 3 }}>{b.sold.toLocaleString()} đã mở · {b.rarity}</div></div></div>
                             <div style={{ marginTop: 8, background: b.color + "12", borderRadius: 8, padding: "6px 10px" }}><div style={{ fontSize: 11, fontWeight: 600, marginBottom: 4 }}>Có thể nhận:</div><div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>{b.possible.map((it, j) => <span key={j} style={{ fontSize: 11, background: "#fff", borderRadius: 4, padding: "2px 6px", color: C.brown }}>{it}</span>)}</div><div style={{ fontSize: 11, color: C.primary, fontWeight: 600, marginTop: 4 }}>⭐ {b.highlight}</div></div>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10 }}><div style={{ display: "flex", alignItems: "center", gap: 4 }}>{I.coin(18)}<span style={{ fontSize: 20, fontWeight: 800, color: C.gold }}>{b.cost}</span></div><Btn primary={b.id === "love"} gold={b.id === "vip"} purple={b.id === "svip"} onClick={() => openBox(b)} disabled={coins < b.cost}>{coins >= b.cost ? "🎰 Mở" : "Chưa đủ"}</Btn></div>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10 }}><div style={{ display: "flex", alignItems: "center", gap: 4 }}>{I.coin(18)}<span style={{ fontSize: 20, fontWeight: 800, color: C.gold }}>{b.cost}</span></div><Btn primary={b.id === "love"} gold={b.id === "premium"} purple={b.id === "emotion"} onClick={() => openBox(b)} disabled={coins < b.cost}>{coins >= b.cost ? "🎁 Mở" : "Chưa đủ"}</Btn></div>
                         </div>)}</div>}
 
                     {tab === "shop" && <div style={{ padding: 12 }}>
@@ -1965,7 +2229,7 @@
                 </div>
 
                 <div style={{ display: "flex", justifyContent: "space-around", height: 50, background: "#fff", borderTop: "1px solid #f0ebe8", alignItems: "center", flexShrink: 0 }}>
-                    {[{ id: "home", l: "Trang chủ", ic: "🏠" }, { id: "card", l: "Duyên Card", ic: "💳" }, { id: "box", l: "Duyên Box", ic: "🎁" }, { id: "shop", l: "Duyên Store", ic: "🛍️" }, { id: "profile", l: "Tôi", ic: "👤" }].map(t => <div key={t.id} onClick={() => { setTab(t.id); setScreen(null); setBoxResult(null) }} style={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer" }}><span style={{ fontSize: 18, filter: tab === t.id ? "none" : "grayscale(.5) opacity(.5)" }}>{t.ic}</span><span style={{ fontSize: 11, fontWeight: tab === t.id ? 700 : 500, color: tab === t.id ? C.primary : C.tl }}>{t.l}</span></div>)}
+                    {[{ id: "home", l: "Trang chủ", ic: "🏠" }, { id: "card", l: "Duyên Card", ic: "💳" }, { id: "box", l: "Duyên Box", ic: "🎁" }, { id: "shop", l: "Duyên Store", ic: "🛍️" }, { id: "profile", l: "Tôi", ic: "👤" }].map(t => <div key={t.id} onClick={() => { setTab(t.id); setScreen(null); setBoxResult(null); setSelectedBox(null) }} style={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer" }}><span style={{ fontSize: 18, filter: tab === t.id ? "none" : "grayscale(.5) opacity(.5)" }}>{t.ic}</span><span style={{ fontSize: 11, fontWeight: tab === t.id ? 700 : 500, color: tab === t.id ? C.primary : C.tl }}>{t.l}</span></div>)}
                 </div>
 
                 {/* OVERLAYS */}
@@ -2051,9 +2315,9 @@
                     {editMode && <div style={{ display: "flex", gap: 8 }}><Btn full onClick={() => setEditMode(false)}>Hủy</Btn><Btn primary full onClick={saveProfile}>Lưu</Btn></div>}
                 </div></div>}
 
-                {screen === "product" && (() => { const p = sData; if (!p) return null; const inC = cart.find(i => i.id === p.id); const imgs = parseProductImages(p.images).filter(isDisplayableImage).slice(0, 3); const activeImg = p.activeImage || p.imageSrc || imgs[0] || ""; return (<div style={FS}>{renderHead(p.name)}<div style={{ flex: 1, overflow: "auto" }}><ProductImage p={{...p, imageSrc: activeImg}} height={"min(100vw, 390px)"} fontSize={62} />{imgs.length > 1 && <div style={{ display: "flex", gap: 8, padding: "8px 12px", background: "#fff", overflowX: "auto" }}>{imgs.map((img, idx) => <div key={idx} onClick={() => setSData(x => ({ ...x, activeImage: img }))} style={{ width: 56, height: 56, borderRadius: 8, overflow: "hidden", border: activeImg === img ? `2px solid ${C.primary}` : "1px solid #EDE7E4", cursor: "pointer", flexShrink: 0 }}><ProductImage p={{ id: (p.id || "p") + "_thumb_" + idx, images: [img], img: p.img }} height={56} fontSize={20} radius={8} /></div>)}</div>}<div style={{ padding: 12, background: "#fff", marginTop: 6 }}><div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 6 }}><span style={{ fontSize: 27, fontWeight: 900, color: "#E85D3D" }}>{fmt(p.price)}</span>{Number(p.orig) > Number(p.price) && <span style={{ fontSize: 13, color: C.tl, textDecoration: "line-through" }}>{fmt(p.orig)}</span>}</div><div style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.35, color: C.text }}>{p.name}</div><div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 8 }}><span style={{ fontSize: 11, color: "#fff", background: C.primary, borderRadius: 4, padding: "2px 6px", fontWeight: 800 }}>{p.shop ? "Mall" : "Yêu thích"}</span><span style={{ fontSize: 11, color: C.primary, border: `1px solid ${C.primary}80`, borderRadius: 4, padding: "2px 6px", fontWeight: 700 }}>Rẻ Vô Địch</span><span style={{ fontSize: 11, color: "#fff", background: "#26A69A", borderRadius: 4, padding: "2px 6px", fontWeight: 700 }}>🚚 &lt; 2 Ngày</span></div><div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 13, color: C.tl }}><span>{I.star()} {p.rating}</span><span>Đã bán {formatSold(p.sold)}</span><span>📍 TP.HCM</span></div><div style={{ display: "inline-flex", alignItems: "center", gap: 3, background: C.gold + "18", borderRadius: 6, padding: "4px 8px", marginTop: 10 }}>{I.coin(12)}<span style={{ fontSize: 13, fontWeight: 700, color: C.gold }}>Sẽ nhận +{p.coinBack} coin sau giao hàng</span></div></div><div style={{ marginTop: 8, background: "#fff", padding: 12 }}><div style={{ fontSize: 14, fontWeight: 800, color: C.brown, marginBottom: 6 }}>Mô tả sản phẩm</div><div style={{ fontSize: 14, color: C.brown, lineHeight: 1.55 }}>{p.desc || "Sản phẩm từ đối tác Duyên Store."}</div><div style={{ marginTop: 12, background: C.ok + "15", borderRadius: 10, padding: "8px 10px", display: "flex", alignItems: "center", gap: 8 }}>{I.shield()}<div><div style={{ fontSize: 13, fontWeight: 700, color: C.ok }}>Cam kết chính hãng</div><div style={{ fontSize: 12, color: C.brown }}>Đổi trả 7 ngày · Hoàn tiền nếu lỗi</div></div></div></div></div><div style={{ padding: "10px 12px", background: "#fff", borderTop: "1px solid #f0ebe8", display: "flex", gap: 8, flexShrink: 0 }}>{inC ? <><div style={{ display: "flex", alignItems: "center", gap: 8 }}><div onClick={() => updQty(p.id, -1)} style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid #EDE7E4", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 18 }}>−</div><span style={{ fontSize: 16, fontWeight: 700 }}>{inC.qty}</span><div onClick={() => updQty(p.id, 1)} style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid #EDE7E4", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 18 }}>+</div></div><Btn primary full onClick={() => setScreen("cart")}>Giỏ ({cartCount})</Btn></> : <Btn primary full onClick={() => addToCart(p)}>Mua — {fmt(p.price)}</Btn>}</div></div>) })()}
+                {screen === "product" && (() => { const p = sData; if (!p) return null; const activeVariant = p.variant || (Array.isArray(p.variants) && p.variants.length ? p.variants[0] : null); const activeVariantLabel = p.variantLabel || (activeVariant ? variantLabel(activeVariant) : ""); const activeCartKey = p.id + (activeVariantLabel ? "_" + activeVariantLabel : ""); const inC = cart.find(i => (i.cartKey || i.id) === activeCartKey); const imgs = parseProductImages(p.images).filter(isDisplayableImage).slice(0, 5); const activeImg = p.activeImage || p.imageSrc || imgs[0] || ""; return (<div style={FS}>{renderHead(p.name)}<div style={{ flex: 1, overflow: "auto" }}><ProductImage p={{...p, imageSrc: activeImg}} height={"min(100vw, 390px)"} fontSize={62} />{imgs.length > 1 && <div style={{ display: "flex", gap: 8, padding: "8px 12px", background: "#fff", overflowX: "auto" }}>{imgs.map((img, idx) => <div key={idx} onClick={() => setSData(x => ({ ...x, activeImage: img }))} style={{ width: 56, height: 56, borderRadius: 8, overflow: "hidden", border: activeImg === img ? `2px solid ${C.primary}` : "1px solid #EDE7E4", cursor: "pointer", flexShrink: 0 }}><ProductImage p={{ id: (p.id || "p") + "_thumb_" + idx, images: [img], img: p.img }} height={56} fontSize={20} radius={8} /></div>)}</div>}<div style={{ padding: 12, background: "#fff", marginTop: 6 }}><div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 6 }}><span style={{ fontSize: 27, fontWeight: 900, color: "#E85D3D" }}>{productPriceText(activeVariant ? { ...p, variant: activeVariant } : p)}</span>{Number(p.orig) > Number(p.price) && <span style={{ fontSize: 13, color: C.tl, textDecoration: "line-through" }}>{fmt(p.orig)}</span>}</div><div style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.35, color: C.text }}>{p.name}</div><div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 8 }}><span style={{ fontSize: 11, color: "#fff", background: C.primary, borderRadius: 4, padding: "2px 6px", fontWeight: 800 }}>{p.shop ? "Mall" : "Yêu thích"}</span><span style={{ fontSize: 11, color: C.primary, border: `1px solid ${C.primary}80`, borderRadius: 4, padding: "2px 6px", fontWeight: 700 }}>Rẻ Vô Địch</span><span style={{ fontSize: 11, color: "#fff", background: "#26A69A", borderRadius: 4, padding: "2px 6px", fontWeight: 700 }}>🚚 &lt; 2 Ngày</span></div><div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 13, color: C.tl }}><span>{I.star()} {p.rating}</span><span>Đã bán {formatSold(p.sold)}</span><span>📍 TP.HCM</span></div><div style={{ display: "inline-flex", alignItems: "center", gap: 3, background: C.gold + "18", borderRadius: 6, padding: "4px 8px", marginTop: 10 }}>{I.coin(12)}<span style={{ fontSize: 13, fontWeight: 700, color: C.gold }}>Sẽ nhận +{p.coinBack} coin sau giao hàng</span></div></div>{Array.isArray(p.variants) && p.variants.length > 0 && <div style={{ marginTop: 8, background: "#fff", padding: 12 }}><div style={{ fontSize: 14, fontWeight: 800, color: C.brown, marginBottom: 8 }}>Chọn màu sắc / kích cỡ</div><div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{p.variants.map((v, idx) => { const label = variantLabel(v) || ("Loại " + (idx + 1)); const active = activeVariantLabel === label; return <div key={idx} onClick={() => setSData(x => ({ ...x, variant: v, variantLabel: label, price: Number(v.price) || Number(x.price) || 0 }))} style={{ minWidth: 86, borderRadius: 10, padding: "8px 10px", cursor: "pointer", border: active ? `2px solid ${C.primary}` : "1px solid #EDE7E4", background: active ? "#FFF4F1" : "#fff" }}><div style={{ fontSize: 12, fontWeight: 800, color: active ? C.primary : C.brown }}>{label}</div><div style={{ fontSize: 11, color: C.tl, marginTop: 2 }}>{fmt(v.price || p.price)}{Number(v.qty) > 0 ? " · còn " + v.qty : ""}</div></div> })}</div></div>}<div style={{ marginTop: 8, background: "#fff", padding: 12 }}><div style={{ fontSize: 14, fontWeight: 800, color: C.brown, marginBottom: 6 }}>Mô tả sản phẩm</div><div style={{ fontSize: 14, color: C.brown, lineHeight: 1.55 }}>{p.desc || "Sản phẩm từ đối tác Duyên Store."}</div><div style={{ marginTop: 12, background: C.ok + "15", borderRadius: 10, padding: "8px 10px", display: "flex", alignItems: "center", gap: 8 }}>{I.shield()}<div><div style={{ fontSize: 13, fontWeight: 700, color: C.ok }}>Cam kết chính hãng</div><div style={{ fontSize: 12, color: C.brown }}>Đổi trả 7 ngày · Hoàn tiền nếu lỗi</div></div></div></div></div><div style={{ padding: "10px 12px", background: "#fff", borderTop: "1px solid #f0ebe8", display: "flex", gap: 8, flexShrink: 0 }}>{inC ? <><div style={{ display: "flex", alignItems: "center", gap: 8 }}><div onClick={() => updQty(activeCartKey, -1)} style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid #EDE7E4", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 18 }}>−</div><span style={{ fontSize: 16, fontWeight: 700 }}>{inC.qty}</span><div onClick={() => updQty(activeCartKey, 1)} style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid #EDE7E4", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 18 }}>+</div></div><Btn primary full onClick={() => setScreen("cart")}>Giỏ ({cartCount})</Btn></> : <Btn primary full onClick={() => addToCart(activeVariant ? { ...p, variant: activeVariant, variantLabel: activeVariantLabel, price: Number(activeVariant.price) || Number(p.price) || 0 } : p)}>Mua - {productPriceText(activeVariant ? { ...p, variant: activeVariant } : p)}</Btn>}</div></div>) })()}
 
-                {screen === "cart" && <div style={FS}>{renderHead("Giỏ hàng (" + cartCount + ")")}<div style={{ flex: 1, overflow: "auto", padding: 12 }}>{!cart.length ? <div style={{ textAlign: "center", padding: 40, color: C.tl }}>🛒 Giỏ trống</div> : cart.map(i => <div key={i.id} style={{ display: "flex", gap: 8, background: "#fff", borderRadius: 12, padding: 10, marginBottom: 6 }}><div style={{ width: 44, height: 44, flexShrink: 0 }}><ProductImage p={i} height={44} fontSize={24} radius={10} /></div><div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600 }}>{i.name}</div><div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{fmt(i.price)}</div><div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}><div onClick={() => updQty(i.id, -1)} style={{ width: 22, height: 22, borderRadius: 6, border: "1px solid #EDE7E4", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 14 }}>−</div><span style={{ fontSize: 14, fontWeight: 700 }}>{i.qty}</span><div onClick={() => updQty(i.id, 1)} style={{ width: 22, height: 22, borderRadius: 6, border: "1px solid #EDE7E4", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 14 }}>+</div></div></div></div>)}</div>{cart.length > 0 && <div style={{ padding: "10px 12px", background: "#fff", borderTop: "1px solid #f0ebe8", flexShrink: 0 }}><div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ fontSize: 13, color: C.tl }}>Tổng</span><span style={{ fontSize: 16, fontWeight: 800, color: C.primary }}>{fmt(cartTotal)}</span></div><Btn primary full onClick={goCheckout}>Tiếp tục → Giao hàng</Btn></div>}</div>}
+                {screen === "cart" && <div style={FS}>{renderHead("Giỏ hàng (" + cartCount + ")")}<div style={{ flex: 1, overflow: "auto", padding: 12 }}>{!cart.length ? <div style={{ textAlign: "center", padding: 40, color: C.tl }}>🛒 Giỏ trống</div> : cart.map(i => <div key={i.cartKey || i.id} style={{ display: "flex", gap: 8, background: "#fff", borderRadius: 12, padding: 10, marginBottom: 6 }}><div style={{ width: 44, height: 44, flexShrink: 0 }}><ProductImage p={i} height={44} fontSize={24} radius={10} /></div><div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600 }}>{i.name}{i.variantLabel ? " · " + i.variantLabel : ""}</div><div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{fmt(i.price)}</div><div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}><div onClick={() => updQty(i.cartKey || i.id, -1)} style={{ width: 22, height: 22, borderRadius: 6, border: "1px solid #EDE7E4", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 14 }}>−</div><span style={{ fontSize: 14, fontWeight: 700 }}>{i.qty}</span><div onClick={() => updQty(i.cartKey || i.id, 1)} style={{ width: 22, height: 22, borderRadius: 6, border: "1px solid #EDE7E4", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 14 }}>+</div></div></div></div>)}</div>{cart.length > 0 && <div style={{ padding: "10px 12px", background: "#fff", borderTop: "1px solid #f0ebe8", flexShrink: 0 }}><div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ fontSize: 13, color: C.tl }}>Tổng</span><span style={{ fontSize: 16, fontWeight: 800, color: C.primary }}>{fmt(cartTotal)}</span></div><Btn primary full onClick={goCheckout}>Tiếp tục → Giao hàng</Btn></div>}</div>}
 
                 {screen === "checkout" && <div style={FS}>{renderHead("Thông tin giao hàng")}<div style={{ flex: 1, overflow: "auto", padding: 12 }}>
                     <Inp label="Họ tên" value={shipName} onChange={setShipName} />
@@ -2153,6 +2417,7 @@
                         const myConfirm    = matchInfo?.myConfirm || "Pending";
                         const theirConfirm = matchInfo?.theirConfirm || "Pending";
                         const feeInfo      = calcRemainingFeeApp(user?.package);
+                        const meetPayInfo  = `HENGAP ${(user?.phone || "").slice(-4)} ${mCode}`;
                         const myAgreed     = myConfirm.includes("Đồng ý");
                         const bothAgreed   = myAgreed && theirConfirm.includes("Đồng ý");
                         const iWaiting     = !myAgreed && !myConfirm.includes("Từ chối");
@@ -2223,8 +2488,12 @@
                                         </div>
                                         <div style={{ background: "#fff", borderRadius: 10, padding: 10, textAlign: "center", marginBottom: 8 }}>
                                             <div style={{ fontSize: 11, color: C.tl, marginBottom: 6 }}>Quét QR hoặc chuyển khoản</div>
-                                            <div style={{ width: 86, height: 86, margin: "0 auto", background: "repeating-linear-gradient(45deg,#333 0,#333 3px,#fff 3px,#fff 8px)", border: `2px solid ${MC.bg}`, borderRadius: 4 }}></div>
-                                            <div style={{ fontSize: 10, color: C.tl, marginTop: 7, lineHeight: 1.6 }}>{appConfig?.bankName || "Vietcombank"} · {appConfig?.bankAccount || "0261003491045"}<br />{appConfig?.bankOwner || "CONG TY NOI DUYEN"}<br />Nội dung: <strong>HENGAP {(user?.phone || "").slice(-4)} {mCode}</strong></div>
+                                            <img
+                                                src={vietQrUrl(cfgBank, feeInfo.fee, meetPayInfo)}
+                                                alt="QR chuyển khoản Hành trình Duyên"
+                                                style={{ width: 156, height: 156, objectFit: "contain", borderRadius: 8, display: "block", margin: "0 auto", border: "1px solid #F0E7E4", background: "#fff" }}
+                                            />
+                                            <div style={{ fontSize: 10, color: C.tl, marginTop: 7, lineHeight: 1.6 }}>{cfgBank.bank || "Vietcombank"} · {cfgBank.number || "0261003491045"}<br />{cfgBank.name || "CONG TY NOI DUYEN"}<br />Nội dung: <strong>{meetPayInfo}</strong></div>
                                         </div>
                                         <div style={{ background: MC.bg, borderRadius: 10, padding: 10, textAlign: "center", cursor: matchSubmitting ? "default" : "pointer", fontSize: 12, color: "#fff", fontWeight: 700, opacity: matchSubmitting ? .6 : 1 }}
                                             onClick={async () => { if (matchSubmitting || !mCode) return; setMatchSubmitting(true); try { const r = await sheetCall({ action: "matchPayRequest", phone: user.phone, matchCode: mCode }); if (r?.status === "ok") { show("✅ Đã ghi nhận! Admin xác nhận trong 24h — lịch hẹn sẽ được setup ngay sau đó 💕"); const mi = await sheetCall({ action: "getMatchInfo", phone: user.phone }); if (mi?.status === "found") setMatchInfo(mi); } else show(r?.message || "Lỗi ghi nhận, thử lại sau."); } catch { show("Lỗi kết nối, thử lại sau."); } setMatchSubmitting(false); }}>
@@ -2476,13 +2745,57 @@
                         </div><Btn primary full onClick={() => { setScreen(null); setTab("home") }}>Về trang chủ</Btn></div></div></div>)
                 })()}
 
+                {screen === "boxCheckout" && selectedBox && <div style={FS}>{renderHead("Mở " + selectedBox.name)}
+                    <div style={{ flex: 1, overflow: "auto", padding: 14 }}>
+                        <div style={{ background: "#fff", borderRadius: 16, padding: 14, border: `1.5px solid ${selectedBox.color || C.gold}55`, marginBottom: 12 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                <div style={{ width: 58, height: 58, borderRadius: 16, background: (selectedBox.color || C.gold) + "22", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30 }}>{selectedBox.emoji}</div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontSize: 16, fontWeight: 900, color: C.brown }}>{selectedBox.name}</div>
+                                    <div style={{ fontSize: 12, color: C.tl, marginTop: 3 }}>{selectedBox.tagline}</div>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 5 }}>{I.coin(15)}<span style={{ fontSize: 16, fontWeight: 900, color: C.gold }}>{selectedBox.cost}</span><span style={{ fontSize: 11, color: C.tl }}>· giao 2–4h nếu shop còn hàng</span></div>
+                                </div>
+                            </div>
+                            <div style={{ fontSize: 12, color: C.text, lineHeight: 1.55, marginTop: 10, background: C.bg2, borderRadius: 10, padding: 10 }}>
+                                Duyên sẽ lọc sản phẩm trong Duyên Store theo giá trị box, tồn kho, shop phù hợp/gần địa chỉ nhận, rồi AI/fallback viết lời nhắn cá nhân hóa.
+                            </div>
+                        </div>
+                        {selectedBox.id === "emotion" && <div style={{ background: "#fff", borderRadius: 14, padding: 12, marginBottom: 10, border: "1px solid #EDE7E4" }}>
+                            <div style={{ fontSize: 13, fontWeight: 800, color: C.brown, marginBottom: 8 }}>Bạn muốn gửi cảm xúc nào?</div>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                                {(selectedBox.moods || []).map(m => <div key={m} onClick={() => setBoxMood(m)} style={{ fontSize: 12, padding: "7px 9px", borderRadius: 20, cursor: "pointer", fontWeight: 700, color: boxMood === m ? "#fff" : C.brown, background: boxMood === m ? selectedBox.color : C.bg2, border: `1px solid ${boxMood === m ? selectedBox.color : "#EDE7E4"}` }}>{m}</div>)}
+                            </div>
+                        </div>}
+                        <div style={{ background: "#fff", borderRadius: 14, padding: 12, border: "1px solid #EDE7E4", marginBottom: 10 }}>
+                            <div style={{ fontSize: 13, fontWeight: 800, color: C.brown, marginBottom: 8 }}>Thông tin người nhận</div>
+                            <Inp label="Họ tên người nhận" value={shipName} onChange={setShipName} />
+                            <Inp label="SĐT người nhận" value={shipPhone} onChange={v => setShipPhone(v.replace(/\D/g, ""))} type="tel" maxLength={10} />
+                            <AddrPick city={shipCity} setCity={setShipCity} d={shipD} setD={setShipD} w={shipW} setW={setShipW} s={shipSt} setS={setShipSt} />
+                            <Inp label="Ghi chú cho shop (tuỳ chọn)" value={shipNote} onChange={setShipNote} placeholder="Ví dụ: gọi trước khi giao, viết thiệp..." rows={2} />
+                        </div>
+                        <Btn primary full onClick={confirmOpenDuyenBox} disabled={boxOpening || coins < selectedBox.cost}>{boxOpening ? "Đang mở..." : "Mở " + selectedBox.name}</Btn>
+                        <div style={{ fontSize: 11, color: C.tl, textAlign: "center", marginTop: 8, lineHeight: 1.5 }}>Daily không tạo đơn giao hàng. Các Box còn lại sẽ tạo đơn cho shop và shop nhận coin sau khi giao thành công.</div>
+                    </div>
+                </div>}
+
                 {(boxOpening || boxResult) && <div style={FS}>{renderHead("Mở Box")}<div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 20, textAlign: "center" }}>
-                    {boxOpening ? <><div style={{ fontSize: 66, animation: "shake 0.5s infinite" }}>{sData?.emoji}</div><div style={{ fontSize: 18, fontWeight: 800, marginTop: 12 }}>Đang mở...</div></>
-                        : <><div style={{ fontSize: 74, animation: "pulse 1.5s infinite" }}>{boxResult}</div><div style={{ fontSize: 20, fontWeight: 800, marginTop: 12 }}>Chúc mừng! 🎉</div><div style={{ fontSize: 18, fontWeight: 700, color: C.primary, marginTop: 8, background: C.ov, borderRadius: 12, padding: "10px 20px" }}>{boxResult}</div><Btn primary onClick={() => {
-                            // Order + confirmingOrder đã được tạo trong openBox → chỉ cần điều hướng
-                            setBoxResult(null);
-                            setScreen("confirmAddr");
-                        }} style={{ marginTop: 16 }}>Xác nhận địa chỉ nhận quà →</Btn></>}
+                    {boxOpening ? <><div style={{ fontSize: 66, animation: "shake 0.5s infinite" }}>{sData?.emoji}</div><div style={{ fontSize: 18, fontWeight: 800, marginTop: 12 }}>Đang mở...</div><div style={{ fontSize: 12, color: C.tl, marginTop: 6 }}>Duyên đang chọn sản phẩm phù hợp từ shop còn hàng...</div></>
+                        : (() => {
+                            const r = boxResult || {};
+                            const b = r.box || selectedBox || {};
+                            const p = r.selectedProduct || {};
+                            return <><div style={{ fontSize: 74, animation: "pulse 1.5s infinite" }}>{b.emoji || "🎁"}</div><div style={{ fontSize: 20, fontWeight: 800, marginTop: 12 }}>Đã mở {b.name || "Duyên Box"}!</div>
+                                <div style={{ fontSize: 15, fontWeight: 800, color: C.primary, marginTop: 10, background: C.ov, borderRadius: 12, padding: "10px 14px", width: "100%", boxSizing: "border-box" }}>{p.name || "Quà bí ẩn"}{p.variantLabel ? " · " + p.variantLabel : ""}</div>
+                                <div style={{ fontSize: 12, color: C.tl, marginTop: 5 }}>Shop: {p.shopName || "Duyên Store"} · Đơn #{r.order?.id}</div>
+                                {r.aiMessage && <div style={{ fontSize: 13, color: C.brown, lineHeight: 1.55, marginTop: 12, background: "#fff", borderRadius: 12, padding: 12, border: "1px solid #F0DCD0" }}>{r.aiMessage}</div>}
+                                <div style={{ fontSize: 10, color: r.aiSource === "gemini_2_5_flash" ? C.primary : C.tl, marginTop: 8 }}>{r.aiSource === "gemini_2_5_flash" ? "✨ Gemini đã cá nhân hóa lựa chọn này" : "⚙️ Đang dùng lựa chọn dự phòng"}</div>
+                                <div style={{ fontSize: 11, color: C.tl, marginTop: 8 }}>Shop sẽ chuẩn bị/giao hàng trong 2–4h nếu khu vực và tồn kho phù hợp. Trạng thái sẽ cập nhật trong Đơn hàng.</div>
+                                <Btn primary onClick={() => {
+                                    setBoxResult(null);
+                                    setSelectedBox(null);
+                                    setScreen("orders");
+                                }} style={{ marginTop: 16 }}>Xem đơn hàng →</Btn></>
+                        })()}
                 </div></div>}
 
                 {screen === "topup" && <div style={FS}>{renderHead("Nạp Coin")}<div style={{ flex: 1, overflow: "auto", padding: 14 }}>
